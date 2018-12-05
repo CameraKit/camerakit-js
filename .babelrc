@@ -4,7 +4,8 @@
       ["module-resolver", {
         "root": ["./"],
         "alias": {
-          "static": "./static"
+          "static": "./static",
+          "camerakit-web": "./camerakit-web"
         }
       }]
     ]
