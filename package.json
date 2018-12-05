@@ -1,0 +1,37 @@
+{
+  "name": "camerakit-web",
+  "version": "1.0.0",
+  "description": "Camerakit for the browser.",
+  "scripts": {
+    "start": "next"
+  },
+  "author": "Alterac, Inc.",
+  "license": "MIT",
+  "dependencies": {
+    "@zeit/next-sass": "^1.0.1",
+    "babel-plugin-module-resolver": "^3.1.1",
+    "body-parser": "^1.18.3",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "express-sslify": "^1.2.0",
+    "next": "^7.0.0",
+    "next-compose-plugins": "^2.1.1",
+    "next-images": "^1.0.0",
+    "node-sass": "^4.9.3",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "webpack": "^4.20.2"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.0.0",
+    "babel-preset-env": "^1.7.0",
+    "eslint": "^5.6.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-import-resolver-webpack": "^0.10.1",
+    "eslint-plugin-babel": "^5.2.0",
+    "eslint-plugin-compat": "^2.5.1",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1"
+  }
+}
