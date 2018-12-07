@@ -25,22 +25,11 @@ const CameraKitWeb = {
   },
 
   initializeCamera: ({
-    audioDeviceId, videoDeviceId, height, width, ideal, max, facingMode = 'environment',
+    audioDeviceId, videoDeviceId,
   }) => {
     const constraints = {
-      audio: {
-        deviceId: { exact: audioDeviceId },
-      },
-      video: {
-        deviceId: { exact: videoDeviceId },
-        width,
-        height,
-        frameRate: {
-          ideal,
-          max,
-        },
-        facingMode,
-      },
+      audio: { deviceId: audioDeviceId ? { exact: audioDeviceId } : undefined },
+      video: { deviceId: videoDeviceId ? { exact: videoDeviceId } : undefined },
     };
     return navigator.mediaDevices.getUserMedia(constraints);
   },
