@@ -1,0 +1,12 @@
+{
+    "presets": ["next/babel"],
+    "plugins": [
+      ["module-resolver", {
+        "root": ["./"],
+        "alias": {
+          "static": "./static",
+          "camerakit-web": "./camerakit-web"
+        }
+      }]
+    ]
+  }
