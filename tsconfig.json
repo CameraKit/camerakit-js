@@ -10,7 +10,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "sourceMap": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "declaration": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,

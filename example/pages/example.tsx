@@ -12,7 +12,6 @@ class Example extends React.Component {
   imageCapture: any;
   imageContainer: any;
   input: any;
-  recorder: any;
 
   constructor(props) {
     super(props);
@@ -36,22 +35,30 @@ class Example extends React.Component {
 
   getDevices = () => {
     CameraKitWeb.getDevices()
-      .then(({ audioSources, videoSources }) => {
-        this.setState({ audioSources, videoSources });
+      .then(({ video, audio }) => {
+        this.setState({ videoSources: video, audioSources: audio });
       })
       .catch(this.handleError);
   };
 
   gotStream = stream => {
     this.setState({ stream });
-    this.src.srcObject = stream;
+    console.log("stream", stream);
+    console.log("stream.getMediaSteam()", stream.getMediaStream());
+
+    this.src.srcObject = stream.getMediaStream();
     this.src.play();
   };
 
   requestCamera = () => {
-    CameraKitWeb.initializeCamera({
-      audioDeviceId: this.audioSource.value,
-      videoDeviceId: this.videoSource.value
+    let { videoSources, audioSources } = this.state;
+    CameraKitWeb.createCaptureStream({
+      video: videoSources.find(
+        s => s.device.deviceId === this.videoSource.value
+      ),
+      audio: audioSources.find(
+        s => s.device.deviceId === this.audioSource.value
+      )
     })
       .then(this.gotStream)
       .catch(this.handleError);
@@ -61,9 +68,7 @@ class Example extends React.Component {
     this.setState(
       {
         imageTaken: true,
-        image: CameraKitWeb.takePicture({
-          videoElement: this.src
-        })
+        image: this.state.stream.shutter.capture()
       },
       this.showPicture
     );
@@ -87,13 +92,13 @@ class Example extends React.Component {
 
   startRecording = () => {
     const { stream } = this.state;
-    this.recorder = new CameraKitWeb.Recorder(stream);
-    this.recorder.startRecording();
+    stream.recorder.start();
     this.setState({ recording: true });
   };
 
   stopRecording = () => {
-    const buffer = this.recorder.stopRecording();
+    let { stream } = this.state;
+    const buffer = stream.recorder.stop();
     this.setState({ video: buffer, recording: false, videoTaken: true }, () => {
       const { video } = this.state;
       this.out.src = null;
@@ -213,6 +218,8 @@ class Example extends React.Component {
         </button>
         <br />
         <video
+          playsInline
+          autoPlay
           width="200"
           ref={video => {
             this.src = video;

@@ -7,7 +7,7 @@ export class Recorder {
     this.stream = stream;
   }
 
-  public startRecording() {
+  start() {
     const mediaSource = new MediaSource();
     this.recordedBlobs = [];
 
@@ -40,7 +40,7 @@ export class Recorder {
     console.log("MediaRecorder started", this.mediaRecorder);
   }
 
-  public stopRecording(): Blob {
+  stop(): Blob {
     this.mediaRecorder.stop();
     return new Blob(this.recordedBlobs, { type: "video/webm" });
   }
