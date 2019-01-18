@@ -1,5 +1,6 @@
 import { CaptureStream } from "../entity";
 import { CaptureSource } from "../types";
+import settings from "../main/settings";
 
 export async function getDevices() {
   // TODO: Throw unsupported error for Safari
@@ -37,6 +38,16 @@ export async function createCaptureStream({
   return captureStream;
 }
 
-export function enableStorage() {}
+export function enableStorage(
+  method?: "localStorage" | "sessionStorage" | null
+) {
+  if (method !== undefined) {
+    settings.storageMethod = method;
+  } else {
+    settings.storageMethod = "localStorage";
+  }
+}
 
-export function disableStorage() {}
+export function disableStorage() {
+  settings.storageMethod = null;
+}

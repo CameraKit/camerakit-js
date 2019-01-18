@@ -1,7 +1,11 @@
 export class Recorder {
   private recordedBlobs: Array<Blob>;
+  private latestRecording: Blob;
+
   private mediaRecorder: MediaRecorder;
   private stream: MediaStream;
+
+  private mimeType: string = "video/webm;codecs=vp8";
 
   constructor(stream: MediaStream) {
     this.stream = stream;
@@ -19,13 +23,13 @@ export class Recorder {
     mediaSource.addEventListener(
       "sourceopen",
       () => {
-        mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
+        mediaSource.addSourceBuffer(this.mimeType);
       },
       false
     );
     try {
       this.mediaRecorder = new MediaRecorder(this.stream, {
-        mimeType: "video/webm;codecs=vp8"
+        mimeType: this.mimeType
       });
     } catch (e) {
       console.error("Exception while creating MediaRecorder:", e);
@@ -42,6 +46,20 @@ export class Recorder {
 
   stop(): Blob {
     this.mediaRecorder.stop();
-    return new Blob(this.recordedBlobs, { type: "video/webm" });
+    this.latestRecording = new Blob(this.recordedBlobs, {
+      type: this.mimeType
+    });
+
+    return this.latestRecording;
+  }
+
+  getLatestRecording(): Blob {
+    return this.latestRecording;
+  }
+
+  setMimeType(mimeType: string) {
+    if (MediaRecorder.isTypeSupported(mimeType)) {
+      this.mimeType = mimeType;
+    }
   }
 }

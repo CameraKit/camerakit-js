@@ -1,3 +1,7 @@
+import settings from "../main/settings";
+import { saveImage, downloadImage } from "../util";
+import { StorageMethod } from "../types";
+
 export class Shutter {
   private videoInput: HTMLVideoElement;
   private latestCapture: string;
@@ -6,24 +10,7 @@ export class Shutter {
     this.videoInput = videoInput;
   }
 
-  private downloadImage(image: string, filename?: string): boolean {
-    if (!image) {
-      return false;
-    }
-
-    const a = document.createElement("a");
-    const img = new Blob([image], { type: "image/png" });
-    a.download = filename || `CKW-${new Date()}`;
-    a.href = window.URL.createObjectURL(img);
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    return true;
-  }
-
-  capture() {
+  capture({ save }: { save?: StorageMethod } = {}) {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
     canvas.width = this.videoInput.videoWidth;
@@ -37,11 +24,18 @@ export class Shutter {
     );
 
     this.latestCapture = canvas.toDataURL("image/png");
+
+    if (save || settings.storageMethod) {
+      saveImage(this.latestCapture, {
+        storageMethod: save || settings.storageMethod
+      });
+    }
+
     return this.latestCapture;
   }
 
   captureAndDownload(filename?: string) {
-    this.downloadImage(this.capture(), filename);
+    downloadImage(this.capture(), filename);
   }
 
   downloadLatestCapture(filename?: string): boolean {
@@ -49,7 +43,7 @@ export class Shutter {
       return false;
     }
 
-    this.downloadImage(this.latestCapture, filename);
+    downloadImage(this.latestCapture, filename);
 
     return true;
   }
