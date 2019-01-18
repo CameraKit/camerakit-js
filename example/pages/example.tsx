@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as CameraKitWeb from "../../src";
+import { CaptureSource } from "../../src/types";
 
 class Example extends React.Component {
   state: any;
@@ -43,21 +44,22 @@ class Example extends React.Component {
 
   gotStream = stream => {
     this.setState({ stream });
-    console.log("stream", stream);
-    console.log("stream.getMediaSteam()", stream.getMediaStream());
-
     this.src.srcObject = stream.getMediaStream();
     this.src.play();
   };
 
   requestCamera = () => {
-    let { videoSources, audioSources } = this.state;
+    let { videoSources, audioSources, stream } = this.state;
+    if (stream) {
+      stream.destroy();
+    }
+
     CameraKitWeb.createCaptureStream({
       video: videoSources.find(
-        s => s.device.deviceId === this.videoSource.value
+        (s: CaptureSource) => s.device.deviceId === this.videoSource.value
       ),
       audio: audioSources.find(
-        s => s.device.deviceId === this.audioSource.value
+        (s: CaptureSource) => s.device.deviceId === this.audioSource.value
       )
     })
       .then(this.gotStream)
@@ -65,10 +67,11 @@ class Example extends React.Component {
   };
 
   takePicture = () => {
+    let { stream } = this.state;
     this.setState(
       {
         imageTaken: true,
-        image: this.state.stream.shutter.capture()
+        image: stream.shutter.capture()
       },
       this.showPicture
     );
@@ -80,14 +83,8 @@ class Example extends React.Component {
   };
 
   downloadPicture = () => {
-    const a = document.createElement("a");
-    const { image } = this.state;
-    a.download = `CKW-${new Date()}`;
-    a.href = image;
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    let { stream } = this.state;
+    stream.shutter.downloadLatestCapture();
   };
 
   startRecording = () => {
