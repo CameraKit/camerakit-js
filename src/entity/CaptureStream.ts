@@ -49,6 +49,8 @@ export class CaptureStream {
   }
 
   private async initalizeMediaStream() {
+    // TODO: Create custom MediaStream if Safari is detected.
+
     this.mediaStream = await navigator.mediaDevices.getUserMedia(
       this.generateConstraints({ source: "original" })
     );
@@ -97,6 +99,10 @@ export class CaptureStream {
     const stream = source === "preview" ? this.previewStream : this.mediaStream;
 
     const track = stream.getVideoTracks()[0];
+    if (!track) {
+      throw new Error("No video stream to set resolution");
+    }
+
     const constraints = track.getConstraints();
 
     if (width) {
