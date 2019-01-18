@@ -1,17 +1,37 @@
 export class Recorder {
   private recordedBlobs: Array<Blob>;
   private latestRecording: Blob;
-
   private mediaRecorder: MediaRecorder;
-  private stream: MediaStream;
+
+  private mediaStream: MediaStream;
+  private previewStream: MediaStream;
 
   private mimeType: string = "video/webm;codecs=vp8";
 
-  constructor(stream: MediaStream) {
-    this.stream = stream;
+  constructor({
+    original,
+    preview
+  }: {
+    original: MediaStream;
+    preview: MediaStream;
+  }) {
+    this.mediaStream = original;
+    this.previewStream = preview;
   }
 
-  start() {
+  private selectMediaStream({
+    source
+  }: {
+    source?: "original" | "preview";
+  } = {}) {
+    source = source || "original";
+    if (source === "preview") {
+      return this.previewStream;
+    }
+    return this.mediaStream;
+  }
+
+  start(opts: { source?: "original" | "preview" } = {}) {
     const mediaSource = new MediaSource();
     this.recordedBlobs = [];
 
@@ -28,7 +48,7 @@ export class Recorder {
       false
     );
     try {
-      this.mediaRecorder = new MediaRecorder(this.stream, {
+      this.mediaRecorder = new MediaRecorder(this.selectMediaStream(opts), {
         mimeType: this.mimeType
       });
     } catch (e) {

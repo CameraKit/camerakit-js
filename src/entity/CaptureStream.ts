@@ -3,12 +3,14 @@ import { Shutter } from "./Shutter";
 import { Recorder } from "./Recorder";
 
 export class CaptureStream {
+  private mediaStream: MediaStream;
+  private previewStream: MediaStream;
+
   private videoElem: HTMLVideoElement;
+  private videoPreview: HTMLVideoElement;
 
   private videoSource: CaptureSource | undefined;
   private audioSource: CaptureSource | undefined;
-
-  private mediaStream: MediaStream;
 
   shutter: Shutter;
   recorder: Recorder;
@@ -51,6 +53,7 @@ export class CaptureStream {
     };
 
     this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+    this.previewStream = this.mediaStream.clone();
 
     this.videoElem.srcObject = this.mediaStream;
     this.videoElem.play();
@@ -59,11 +62,17 @@ export class CaptureStream {
   }
 
   private async initalizeShutter() {
-    this.shutter = new Shutter(this.videoElem);
+    this.shutter = new Shutter({
+      original: this.videoElem,
+      preview: this.videoPreview
+    });
   }
 
   private async initalizeRecorder() {
-    this.recorder = new Recorder(this.mediaStream);
+    this.recorder = new Recorder({
+      original: this.mediaStream,
+      preview: this.previewStream
+    });
   }
 
   async init() {
