@@ -24,11 +24,7 @@ export class Recorder {
   }: {
     source?: "original" | "preview";
   } = {}) {
-    source = source || "original";
-    if (source === "preview") {
-      return this.previewStream;
-    }
-    return this.mediaStream;
+    return source === "preview" ? this.previewStream : this.mediaStream;
   }
 
   start(opts: { source?: "original" | "preview" } = {}) {
