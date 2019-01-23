@@ -38,5 +38,8 @@
     "webpack-cli": "^3.2.0",
     "webpack-dev-middleware": "^3.5.0",
     "webpack-hot-middleware": "^2.24.3"
+  },
+  "resolutions": {
+    "@types/react": "^16.7.18"
   }
 }
