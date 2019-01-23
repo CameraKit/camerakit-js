@@ -1,20 +1,31 @@
 import * as React from "react";
 import * as CameraKitWeb from "../../src";
 import { CaptureSource } from "../../src/types";
+import { CaptureStream } from "../../src";
+
+type Props = {};
+
+type State = {
+  audioSources: Array<CaptureSource>;
+  videoSources: Array<CaptureSource>;
+  image: string | undefined;
+  imageTaken: boolean;
+  stream: CaptureStream | undefined;
+  video: Blob | undefined;
+  videoTaken: boolean;
+  recording: boolean;
+};
 
 class Example extends React.Component {
-  state: any;
-  audioSource: any;
-  setState: any;
-  videoSource: any;
-  src: any;
-  captureOut: any;
-  out: any;
-  imageCapture: any;
-  imageContainer: any;
-  input: any;
+  state: State;
 
-  constructor(props) {
+  audioSource: HTMLSelectElement | null;
+  videoSource: HTMLSelectElement | null;
+  src: HTMLVideoElement | null;
+  out: HTMLVideoElement | null;
+  imageContainer: HTMLImageElement | null;
+
+  constructor(props: Props) {
     super(props);
     this.state = {
       audioSources: [],
@@ -22,16 +33,14 @@ class Example extends React.Component {
       image: undefined,
       imageTaken: false,
       stream: undefined,
-      videoTaken: undefined,
-      videoCaptured: false,
-      capturedVideo: undefined,
-      imageCaptured: false,
-      capturedImage: undefined
+      video: undefined,
+      videoTaken: false,
+      recording: false
     };
   }
 
-  handleError = error => {
-    console.log("Error: ", error);
+  handleError = (error: Error) => {
+    console.log("Error: ", error.toString());
   };
 
   getDevices = () => {
@@ -42,7 +51,8 @@ class Example extends React.Component {
       .catch(this.handleError);
   };
 
-  gotStream = stream => {
+  gotStream = (stream: CaptureStream) => {
+    if (!this.src) return;
     this.setState({ stream });
     this.src.srcObject = stream.getMediaStream();
     this.src.play();
@@ -54,12 +64,16 @@ class Example extends React.Component {
       stream.destroy();
     }
 
+    if (!this.videoSource || !this.audioSource) return;
+
     CameraKitWeb.createCaptureStream({
       video: videoSources.find(
-        (s: CaptureSource) => s.device.deviceId === this.videoSource.value
+        (s: CaptureSource) =>
+          s.device.deviceId === (this.videoSource || { value: "" }).value
       ),
       audio: audioSources.find(
-        (s: CaptureSource) => s.device.deviceId === this.audioSource.value
+        (s: CaptureSource) =>
+          s.device.deviceId === (this.audioSource || { value: "" }).value
       )
     })
       .then(this.gotStream)
@@ -68,6 +82,7 @@ class Example extends React.Component {
 
   takePicture = () => {
     let { stream } = this.state;
+    if (!stream) return;
     this.setState(
       {
         imageTaken: true,
@@ -79,26 +94,31 @@ class Example extends React.Component {
 
   showPicture = () => {
     const { image } = this.state;
+    if (!image || !this.imageContainer) return;
     this.imageContainer.src = image;
   };
 
   downloadPicture = () => {
     let { stream } = this.state;
+    if (!stream) return;
     stream.shutter.downloadLatestCapture();
   };
 
   startRecording = () => {
     const { stream } = this.state;
+    if (!stream) return;
     stream.recorder.start();
     this.setState({ recording: true });
   };
 
   stopRecording = () => {
     let { stream } = this.state;
+    if (!stream) return;
     const buffer = stream.recorder.stop();
     this.setState({ video: buffer, recording: false, videoTaken: true }, () => {
       const { video } = this.state;
-      this.out.src = null;
+      if (!video || !this.out) return;
+      this.out.src = "";
       this.out.srcObject = null;
       this.out.src = window.URL.createObjectURL(video);
       this.out.controls = true;
@@ -107,67 +127,9 @@ class Example extends React.Component {
   };
 
   downloadVideo = () => {
-    const a = document.createElement("a");
-    const { video } = this.state;
-    a.download = `CKW-${new Date()}`;
-    a.href = window.URL.createObjectURL(video);
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  videoCaptured = event => {
-    this.setState(
-      { capturedVideo: event.target.files[0], videoCaptured: true },
-      () => {
-        const { capturedVideo } = this.state;
-        this.captureOut.controls = true;
-        this.captureOut.src = null;
-        this.captureOut.srcObject = null;
-        this.captureOut.src = window.URL.createObjectURL(capturedVideo);
-      }
-    );
-  };
-
-  imageCaptured = event => {
-    this.setState(
-      { capturedImage: event.target.files[0], imageCaptured: true },
-      () => {
-        const { capturedImage } = this.state;
-
-        const reader = new FileReader();
-
-        reader.onload = (e: any) => {
-          this.imageCapture.src = e.target.result;
-        };
-        reader.readAsDataURL(capturedImage);
-      }
-    );
-  };
-
-  downloadCapturedImage = () => {
-    const a = document.createElement("a");
-    const { capturedImage } = this.state;
-    const img = new Blob([capturedImage], { type: "image/png" });
-    a.download = `CKW-${new Date()}`;
-    a.href = window.URL.createObjectURL(img);
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  downloadCapturedVideo = () => {
-    const a = document.createElement("a");
-    const { capturedVideo } = this.state;
-    const video = new Blob([capturedVideo], { type: "video/mp4" });
-    a.download = `CKW-${new Date()}`;
-    a.href = window.URL.createObjectURL(video);
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    let { stream } = this.state;
+    if (!stream) return;
+    stream.recorder.downloadLatestRecording();
   };
 
   render() {
@@ -176,9 +138,7 @@ class Example extends React.Component {
       videoSources,
       imageTaken,
       recording,
-      videoTaken,
-      videoCaptured,
-      imageCaptured
+      videoTaken
     } = this.state;
     return (
       <div>
@@ -276,57 +236,6 @@ class Example extends React.Component {
             }}
           />
         )}
-        <br />
-        <p>Fallbacks for iOS/mobile:</p>
-        <p>Take picture (mobile)</p>
-        <input
-          ref={input => {
-            this.input = input;
-          }}
-          onChange={this.imageCaptured}
-          type="file"
-          accept="image/*;capture=camcorder"
-        />
-        {imageCaptured && (
-          <button type="button" onClick={this.downloadCapturedImage}>
-            Download Image
-          </button>
-        )}
-        <br />
-        {imageCaptured && (
-          <img
-            width="200"
-            ref={img => {
-              this.imageCapture = img;
-            }}
-          />
-        )}
-        <br />
-        <p>Record video (mobile)</p>
-        <input
-          ref={input => {
-            this.input = input;
-          }}
-          onChange={this.videoCaptured}
-          type="file"
-          accept="video/*;capture=camcorder"
-        />
-        {videoCaptured && (
-          <button type="button" onClick={this.downloadCapturedVideo}>
-            Download Video
-          </button>
-        )}
-        <br />
-        {videoCaptured && (
-          <video
-            width="200"
-            loop
-            ref={video => {
-              this.captureOut = video;
-            }}
-          />
-        )}
-        <br />
       </div>
     );
   }
