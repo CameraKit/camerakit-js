@@ -59,8 +59,14 @@ export class Shutter {
     return this.latestCapture;
   }
 
-  captureAndDownload(filename?: string) {
-    return downloadImage(this.capture(), filename);
+  captureAndDownload({
+    source,
+    filename
+  }: {
+    source?: "original" | "preview";
+    filename?: string;
+  }) {
+    return downloadImage(this.capture({ source }), filename);
   }
 
   downloadLatestCapture(filename?: string): boolean {
@@ -68,7 +74,6 @@ export class Shutter {
       return false;
     }
 
-    downloadImage(this.latestCapture, filename);
-    return true;
+    return downloadImage(this.latestCapture, filename);
   }
 }

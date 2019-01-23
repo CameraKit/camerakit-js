@@ -1,3 +1,5 @@
+import { downloadVideo } from "../util";
+
 export class Recorder {
   private recordedBlobs: Array<Blob>;
   private latestRecording: Blob;
@@ -28,6 +30,11 @@ export class Recorder {
   }
 
   start(opts: { source?: "original" | "preview" } = {}) {
+    if (this.mediaRecorder && this.mediaRecorder.state === "paused") {
+      this.mediaRecorder.resume();
+      return;
+    }
+
     const mediaSource = new MediaSource();
     this.recordedBlobs = [];
 
@@ -60,17 +67,35 @@ export class Recorder {
     console.log("MediaRecorder started", this.mediaRecorder);
   }
 
-  stop(): Blob {
-    this.mediaRecorder.stop();
-    this.latestRecording = new Blob(this.recordedBlobs, {
-      type: this.mimeType
-    });
-
-    return this.latestRecording;
+  pause() {
+    if (this.mediaRecorder) {
+      this.mediaRecorder.pause();
+    }
   }
 
-  getLatestRecording(): Blob {
-    return this.latestRecording;
+  stop(): Blob | null {
+    if (this.mediaRecorder) {
+      this.mediaRecorder.stop();
+      this.latestRecording = new Blob(this.recordedBlobs, {
+        type: this.mimeType
+      });
+
+      return this.latestRecording;
+    }
+
+    return null;
+  }
+
+  getLatestRecording(): Blob | null {
+    return this.latestRecording ? this.latestRecording : null;
+  }
+
+  downloadLatestRecording(filename?: string): boolean {
+    if (!this.latestRecording) {
+      return false;
+    }
+
+    return downloadVideo(this.latestRecording, filename);
   }
 
   setMimeType(mimeType: string) {

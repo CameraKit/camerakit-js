@@ -1,11 +1,11 @@
-function downloadBlob(blob: Blob, filename?: string): boolean {
-  if (!blob) {
+function download(href: any, filename?: string): boolean {
+  if (!href) {
     return false;
   }
 
   const a = document.createElement("a");
   a.download = filename || `CKW-${new Date()}`;
-  a.href = window.URL.createObjectURL(blob);
+  a.href = href;
   a.style.display = "none";
   document.body.appendChild(a);
   a.click();
@@ -14,10 +14,22 @@ function downloadBlob(blob: Blob, filename?: string): boolean {
   return true;
 }
 
+function downloadBlob(blob: Blob, filename?: string): boolean {
+  if (!blob) {
+    return false;
+  }
+
+  return download(window.URL.createObjectURL(blob), filename);
+}
+
 export function downloadImage(image: string, filename?: string): boolean {
   if (!image) {
     return false;
   }
 
-  return downloadBlob(new Blob([image], { type: "image/png" }), filename);
+  return download(image, filename);
+}
+
+export function downloadVideo(video: Blob, filename?: string): boolean {
+  return downloadBlob(video, filename);
 }
