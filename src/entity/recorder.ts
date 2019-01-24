@@ -10,6 +10,12 @@ export class Recorder {
 
   private mimeType: string = "video/webm;codecs=vp8";
 
+  /**
+   * Recorder is used to take recordings of the CaptureStream
+   * @param {Object} opts
+   * @param {MediaStream} opts.original - The raw, higher resolution stream to record
+   * @param {MediaStream} opts.preview - Another stream, can be used as a downscaled preview of the original stream
+   */
   constructor({
     original,
     preview
@@ -21,14 +27,25 @@ export class Recorder {
     this.previewStream = preview;
   }
 
+  /**
+   * Helper function for choosing correct media stream
+   * @param {Object} opts
+   * @param {("original" | "preview")} [opts.source=original] - Which stream should be selected
+   * @returns {MediaStream} The media stream all changes should be applied to
+   */
   private selectMediaStream({
     source
   }: {
     source?: "original" | "preview";
-  } = {}) {
+  } = {}): MediaStream {
     return source === "preview" ? this.previewStream : this.mediaStream;
   }
 
+  /**
+   * Starts or resumes video recording on specified stream
+   * @param {Object} [opts={}]
+   * @param {("original" | "preview")} [opts.source=original] - Which stream should be selected
+   */
   start(opts: { source?: "original" | "preview" } = {}) {
     if (this.mediaRecorder && this.mediaRecorder.state === "paused") {
       this.mediaRecorder.resume();
@@ -67,12 +84,19 @@ export class Recorder {
     console.log("MediaRecorder started", this.mediaRecorder);
   }
 
+  /**
+   * Temporarily pauses video recording
+   */
   pause() {
     if (this.mediaRecorder) {
       this.mediaRecorder.pause();
     }
   }
 
+  /**
+   * Stops video recording
+   * @returns {(Blob | null)} The completed video recording stored in a Blob
+   */
   stop(): Blob | null {
     if (this.mediaRecorder) {
       this.mediaRecorder.stop();
@@ -86,10 +110,19 @@ export class Recorder {
     return null;
   }
 
+  /**
+   * Retrieves the latest video recorded by the Recorder
+   * @returns {(Blob | null)} The video recording stored in a Blob
+   */
   getLatestRecording(): Blob | null {
     return this.latestRecording ? this.latestRecording : null;
   }
 
+  /**
+   * Downloads the latest video recording to the browser
+   * @param {string} [filename] - Name to use for downloaded video
+   * @returns {boolean} If the recording was successfully downloaded
+   */
   downloadLatestRecording(filename?: string): boolean {
     if (!this.latestRecording) {
       return false;
@@ -98,6 +131,10 @@ export class Recorder {
     return downloadVideo(this.latestRecording, filename);
   }
 
+  /**
+   * Sets the mime type for all recorded videos
+   * @param {string} mimeType - Mime type to be used
+   */
   setMimeType(mimeType: string) {
     if (MediaRecorder.isTypeSupported(mimeType)) {
       this.mimeType = mimeType;

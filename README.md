@@ -49,10 +49,12 @@ async function () {
 
 ### `camerakit`
 
-| Name                            | Parameters                                   | Return                                                            | Description                                                     |
-| ------------------------------- | -------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
-| `camerakit.getDevices`          | none                                         | `Promise<{audio: Array<MediaSource>, video: Array<MediaSource>}>` | Returns available media devices for streaming                   |
-| `camerakit.createCaptureStream` | `{audio?: MediaSource, video?: MediaSource}` | `Promise<CaptureStream>`                                          | Creates new `CaptureStream` instance with provided media inputs |
+| Name                            | Parameters                                              | Return                                                            | Description                                                     |
+| ------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| `camerakit.getDevices`          | none                                                    | `Promise<{audio: Array<MediaSource>, video: Array<MediaSource>}>` | Returns available media devices for streaming                   |
+| `camerakit.createCaptureStream` | `{audio?: MediaSource, video?: MediaSource}`            | `Promise<CaptureStream>`                                          | Creates new `CaptureStream` instance with provided media inputs |
+| `camerakit.enableStorage`       | `{method?: "localStorage" \| "sessionStorage" \| null}` | `void`                                                            | Enables photo storage as a default                              |
+| `camerakit.disableStorage`      | none                                                    | `void`                                                            | Disables photo storage as a default                             |
 
 ### `CaptureStream`
 
@@ -79,11 +81,11 @@ Used for taking photos of the `CaptureStream`.
 
 ### Instance methods
 
-| name                            | Parameters                                              | Return    | Description                                           |
-| ------------------------------- | ------------------------------------------------------- | --------- | ----------------------------------------------------- |
-| `shutter.capture`               | `{source?: "original" \| "preview", save?: boolean}`    | `string`  | Takes and returns picture from specified source       |
-| `shutter.captureAndDownload`    | `{source?: "original" \| "preview", filename?: string}` | `boolean` | Calls `capture` and creates file download from result |
-| `shutter.downloadLatestCapture` | `filename?: string`                                     | `boolean` | Downloads the last picture taken                      |
+| name                            | Parameters                                                                            | Return    | Description                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------- | --------- | ----------------------------------------------------- |
+| `shutter.capture`               | `{source?: "original" \| "preview", save?: "localStorage" | "sessionStorage" | null}` | `string`  | Takes and returns picture from specified source       |
+| `shutter.captureAndDownload`    | `{source?: "original" \| "preview", filename?: string}`                               | `boolean` | Calls `capture` and creates file download from result |
+| `shutter.downloadLatestCapture` | `filename?: string`                                                                   | `boolean` | Downloads the last picture taken                      |
 
 ### `Recorder`
 

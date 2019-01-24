@@ -1,5 +1,5 @@
 import { CaptureStream } from "../entity";
-import { CaptureSource } from "../types";
+import { CaptureSource, StorageMethod } from "../types";
 import settings from "../main/settings";
 
 export async function getDevices() {
@@ -38,9 +38,7 @@ export async function createCaptureStream({
   return captureStream;
 }
 
-export function enableStorage(
-  method?: "localStorage" | "sessionStorage" | null
-) {
+export function enableStorage(method?: StorageMethod) {
   if (method !== undefined) {
     settings.storageMethod = method;
   } else {
