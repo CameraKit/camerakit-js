@@ -1,0 +1,25 @@
+{
+  "version": "2.1.1",
+  "compilerOptions": {
+    "lib": ["dom", "es6"],
+    "outDir": "dist/compiled",
+    "target": "es5",
+    "module": "commonjs",
+    "jsx": "react",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "declaration": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "stripInternal": true,
+    "pretty": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "downlevelIteration": true
+  },
+  "include": ["@types", "src"],
+  "exclude": ["dist", "node_modules"]
+}
