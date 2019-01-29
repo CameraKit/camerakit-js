@@ -1,3 +1,6 @@
+#macOS files
+.DS_Store
+
 # Logs
 logs
 *.log
@@ -59,3 +62,7 @@ typings/
 
 # next.js build output
 .next
+build
+
+# Created directories
+dist
