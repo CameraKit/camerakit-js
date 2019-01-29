@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "camerakit-web",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Camerakit for the browser.",
   "main": "./dist/compiled/index.js",
   "types": "./dist/compiled/index.d.ts",
