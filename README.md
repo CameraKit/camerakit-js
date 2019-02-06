@@ -13,6 +13,25 @@
     </a>
 </p>
 
+CameraKit helps you add reliable camera to your app quickly. Our open source camera platform provides consistent capture results, service that scales, and endless camera possibilities.
+
+With CameraKit Web you are able to effortlessly do the following:
+* ✅ Create custom capture streams
+* ✅ Capture image and video from the same stream
+* ✅ Handle permissions automatically
+* ✅ Set custom media sources
+* ✅ Change stream resolution
+* 📷 Capture images
+* 📹 Record video
+* 📹 Start, stop and pause video recording
+* 🧲 Download images and videos
+
+### Other Camera Implementations
+CameraKit Web as the name suggests, is our camera platform for websites. In addition to Web, we provide our camera interface on the following platforms:
+
+* [CameraKit Android](https://github.com/CameraKit/camerakit-android)
+* [CameraKit iOS](https://github.com/CameraKit/camerakit-ios)
+
 ## Sponsored By
 <a href="https://www.expensify.com/"><img alt="Expensify" src=".repo/gh-readme-expensify-logo.svg" height="45px" width="375px" align="center"></a>
 <a href="https://www.buddy.works/"><img alt="Buddy.Works" src=".repo/gh-readme-buddyworks-logo.png" height="100px"  width="250px" align="center"></a>
