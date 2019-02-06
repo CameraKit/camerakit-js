@@ -8,13 +8,22 @@ Install the package:
 $ npm install camerakit-web
 ```
 
-Import it in your project
+Import it in your project:
 
 ```js
 import camerakit from "camerakit-web";
+```
 
-// ...
+Or, alternatively, you can import via a script tag:
 
+```html
+<script src="path/to/camerakit.min.js"></script>
+<!-- You can now access `camerakit` from the global scope -->
+```
+
+Example usage:
+
+```js
 async function () {
   const devices = await camerakit.getDevices();
 
