@@ -26,7 +26,7 @@ With CameraKit Web you are able to effortlessly do the following:
 * 📹 Start, stop and pause video recording
 * 🧲 Download images and videos
 
-### Other Camera Implementations
+## Other Camera Implementations
 CameraKit Web as the name suggests, is our camera platform for websites. In addition to Web, we provide our camera interface on the following platforms:
 
 * [CameraKit Android](https://github.com/CameraKit/camerakit-android)
@@ -36,17 +36,16 @@ CameraKit Web as the name suggests, is our camera platform for websites. In addi
 <a href="https://www.expensify.com/"><img alt="Expensify" src=".repo/gh-readme-expensify-logo.svg" height="45px" width="375px" align="center"></a>
 <a href="https://www.buddy.works/"><img alt="Buddy.Works" src=".repo/gh-readme-buddyworks-logo.png" height="100px"  width="250px" align="center"></a>
 
-# Setup and Usage
-## Installation
-
-Install the CameraKit Web package:
+# Getting Started
+## Setup
+Install the `camerakit-web` package.
 
 ```
 $ npm install camerakit-web
 ```
 
-## Code
-Import CameraKit Web in your project.
+## Usage
+Import and use `camerakit-web` in your project.
 
 ```js
 import camerakit from "camerakit-web";
