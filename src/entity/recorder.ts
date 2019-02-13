@@ -1,4 +1,3 @@
-import whammy from "whammy";
 import { downloadVideo } from "../util";
 
 export class Recorder {
