@@ -3412,6 +3412,11 @@ webrtc-adapter@^7.1.1:
     rtcpeerconnection-shim "^1.2.15"
     sdp "^2.9.0"
 
+whammy@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/whammy/-/whammy-0.0.1.tgz#cf4bed9fbaa687eda3f42095ff99bf704b08d01e"
+  integrity sha1-z0vtn7qmh+2j9CCV/5m/cEsI0B4=
+
 which-module@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/which-module/-/which-module-2.0.0.tgz#d9ef07dce77b9902b8a3a8fa4b31c3e3f7e6e87a"
