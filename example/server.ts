@@ -12,6 +12,7 @@ const app = express();
 app.use(webpackMiddleware(webpackCompiler));
 app.use(webpackHotMiddleware(webpackCompiler));
 app.use((req, res) => {
+  res.setHeader("Acess-Control-Allow-Origin", "*");
   res.status(200).sendFile(path.resolve(__dirname, "pages/index.html"));
 });
 

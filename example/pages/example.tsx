@@ -104,17 +104,17 @@ class Example extends React.Component {
     stream.shutter.downloadLatestCapture();
   };
 
-  startRecording = () => {
+  startRecording = async () => {
     const { stream } = this.state;
     if (!stream) return;
-    stream.recorder.start();
+    await stream.recorder.start();
     this.setState({ recording: true });
   };
 
-  stopRecording = () => {
+  stopRecording = async () => {
     let { stream } = this.state;
     if (!stream) return;
-    const buffer = stream.recorder.stop();
+    const buffer = await stream.recorder.stop();
     this.setState({ video: buffer, recording: false, videoTaken: true }, () => {
       const { video } = this.state;
       if (!video || !this.out) return;
