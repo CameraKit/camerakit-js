@@ -16,28 +16,33 @@
 CameraKit helps you add reliable camera to your app quickly. Our open source camera platform provides consistent capture results, service that scales, and endless camera possibilities.
 
 With CameraKit Web you are able to effortlessly do the following:
-* ✅ Create custom capture streams
-* ✅ Capture image and video from the same stream
-* ✅ Handle permissions automatically
-* ✅ Set custom media sources
-* ✅ Change stream resolution
-* 📷 Capture images
-* 📹 Record video
-* 📹 Start, stop and pause video recording
-* 🧲 Download images and videos
+
+- ✅ Create custom capture streams
+- ✅ Capture image and video from the same stream
+- ✅ Handle permissions automatically
+- ✅ Set custom media sources
+- ✅ Change stream resolution
+- 📷 Capture images
+- 📹 Record video
+- 📹 Start, stop and pause video recording
+- 🧲 Download images and videos
 
 ## Other Camera Implementations
+
 CameraKit Web as the name suggests, is our camera platform for websites. In addition to Web, we provide our camera interface on the following platforms:
 
-* [CameraKit Android](https://github.com/CameraKit/camerakit-android)
-* [CameraKit iOS](https://github.com/CameraKit/camerakit-ios)
+- [CameraKit Android](https://github.com/CameraKit/camerakit-android)
+- [CameraKit iOS](https://github.com/CameraKit/camerakit-ios)
 
 ## Sponsored By
+
 <a href="https://www.expensify.com/"><img alt="Expensify" src=".repo/gh-readme-expensify-logo.svg" height="45px" width="375px" align="center"></a>
 <a href="https://www.buddy.works/"><img alt="Buddy.Works" src=".repo/gh-readme-buddyworks-logo.png" height="100px"  width="250px" align="center"></a>
 
 # Getting Started
+
 ## Setup
+
 Install the `camerakit-web` package.
 
 ```
@@ -45,6 +50,7 @@ $ npm install camerakit-web
 ```
 
 ## Usage
+
 Import and use `camerakit-web` in your project.
 
 ```js
@@ -95,22 +101,24 @@ async function () {
 
 ### `camerakit`
 
-| Name                            | Parameters                                   | Return                                                            | Description                                                     |
-| ------------------------------- | -------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
-| `camerakit.getDevices`          | none                                         | `Promise<{audio: Array<MediaSource>, video: Array<MediaSource>}>` | Returns available media devices for streaming                   |
-| `camerakit.createCaptureStream` | `{audio?: MediaSource, video?: MediaSource}` | `Promise<CaptureStream>`                                          | Creates new `CaptureStream` instance with provided media inputs |
+| Name                            | Parameters                                              | Return                                                            | Description                                                     |
+| ------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| `camerakit.getDevices`          | none                                                    | `Promise<{audio: Array<MediaSource>, video: Array<MediaSource>}>` | Returns available media devices for streaming                   |
+| `camerakit.createCaptureStream` | `{audio?: MediaSource, video?: MediaSource}`            | `Promise<CaptureStream>`                                          | Creates new `CaptureStream` instance with provided media inputs |
+| `camerakit.enableStorage`       | `{method?: "localStorage" \| "sessionStorage" \| null}` | `void`                                                            | Enables photo storage as a default                              |
+| `camerakit.disableStorage`      | none                                                    | `void`                                                            | Disables photo storage as a default                             |
 
 ### `CaptureStream`
 
 #### Instance methods
 
-| Name                    | Parameters                                                                             | Return                 | Description                                             |
-| ----------------------- | -------------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------- |
+| Name                    | Parameters                                                                             | Return                 | Description                                              |
+| ----------------------- | -------------------------------------------------------------------------------------- | ---------------------- | -------------------------------------------------------- |
 | `stream.init`           | none                                                                                   | `Promise<void>`        | Initializes stream and requests permissions from browser |
-| `stream.setResolution`  | `{width?: number, height?: number, aspect?: number, source?: "original" \| "preview"}` | `Promise<void>`        | Sets the video resolution of the specified source       |
-| `stream.setSource`      | `{audio?: MediaSource, video?: MediaSource, source?: "original" \| "preview"}`         | `Promise<void>`        | Overrides original media inputs for specified source    |
-| `stream.getMediaStream` | `{source?: "original" \| "preview"}`                                                   | `Promise<MediaStream>` | Returns raw `MediaStream` for use in video display      |
-| `stream.destroy`        | none                                                                                   | `void`                 | Closes all open streams and cancels capture             |
+| `stream.setResolution`  | `{width?: number, height?: number, aspect?: number, source?: "original" \| "preview"}` | `Promise<void>`        | Sets the video resolution of the specified source        |
+| `stream.setSource`      | `{audio?: MediaSource, video?: MediaSource, source?: "original" \| "preview"}`         | `Promise<void>`        | Overrides original media inputs for specified source     |
+| `stream.getMediaStream` | `{source?: "original" \| "preview"}`                                                   | `Promise<MediaStream>` | Returns raw `MediaStream` for use in video display       |
+| `stream.destroy`        | none                                                                                   | `void`                 | Closes all open streams and cancels capture              |
 
 #### Properties
 
@@ -125,11 +133,11 @@ Used for taking photos of the `CaptureStream`.
 
 ### Instance methods
 
-| name                            | Parameters                                              | Return    | Description                                           |
-| ------------------------------- | ------------------------------------------------------- | --------- | ----------------------------------------------------- |
-| `shutter.capture`               | `{source?: "original" \| "preview", save?: boolean}`    | `string`  | Takes and returns picture from specified source       |
-| `shutter.captureAndDownload`    | `{source?: "original" \| "preview", filename?: string}` | `boolean` | Calls `capture` and creates file download from result |
-| `shutter.downloadLatestCapture` | `filename?: string`                                     | `boolean` | Downloads the last picture taken                      |
+| name                            | Parameters                                                                            | Return    | Description                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------- | --------- | ----------------------------------------------------- |
+| `shutter.capture`               | `{source?: "original" \| "preview", save?: "localStorage" | "sessionStorage" | null}` | `string`  | Takes and returns picture from specified source       |
+| `shutter.captureAndDownload`    | `{source?: "original" \| "preview", filename?: string}`                               | `boolean` | Calls `capture` and creates file download from result |
+| `shutter.downloadLatestCapture` | `filename?: string`                                                                   | `boolean` | Downloads the last picture taken                      |
 
 ### `Recorder`
 
@@ -144,7 +152,7 @@ Used for recording video of the the `CaptureStream`.
 | `recorder.pause`                   | none                                 | `void`    | Pauses the recording until resumed with `recorder.start()` |
 | `recorder.getLatestRecording`      | none                                 | `?Blob`   | Returns last recorded video file                           |
 | `recorder.downloadLatestRecording` | `filename?: string`                  | `boolean` | Creates file download from last video recording            |
-| `recorder.setMimeType`             | none                                 | `void`    | Sets the video recording mime type for all sources         |
+| `recorder.setMimeType`             | `mimeType: string`                   | `void`    | Sets the video recording mime type for all sources         |
 
 ## License
 
