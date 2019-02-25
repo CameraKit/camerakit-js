@@ -97,8 +97,10 @@ export class CaptureStream {
 
     original.srcObject = this.mediaStream;
     original.play();
+    original.muted = true;
     preview.srcObject = this.previewStream;
     preview.play();
+    preview.muted = true;
 
     this.shutter = new Shutter({ original, preview });
     return this.shutter;
