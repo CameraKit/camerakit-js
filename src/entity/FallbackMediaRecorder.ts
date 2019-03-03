@@ -2,25 +2,24 @@ import {
   ReadableStream,
   WritableStream
 } from "@mattiasbuelens/web-streams-polyfill/ponyfill";
+import * as path from "path";
 import { getVideoSpecs, injectMetadata } from "../util";
+import { FallbackMediaRecorderConfig } from "../types";
 
-const DEFAULT_WORKER_PATH =
-  "https://unpkg.com/webm-wasm@latest/dist/webm-worker.js";
-const DEFAULT_WASM_PATH =
-  "https://unpkg.com/webm-wasm@latest/dist/webm-wasm.wasm";
+const WORKER_NAME = "webm-worker.js";
+const WASM_NAME = "webm-wasm.wasm";
 
-type FallbackConfig = {
-  workerPath?: string;
-  wasmPath?: string;
+const DEFAULT_CONFIG: FallbackMediaRecorderConfig = {
+  base: "",
 
-  width: number;
-  height: number;
-  bitrate: number;
-  framerate: number;
+  width: 640,
+  height: 480,
+  framerate: 30,
+  bitrate: 1200
 };
 
 export class FallbackMediaRecorder {
-  private config: FallbackConfig;
+  private config: FallbackMediaRecorderConfig;
   private stream: MediaStream;
   private worker: Worker | null;
   private buffers: Array<Buffer>;
@@ -35,40 +34,19 @@ export class FallbackMediaRecorder {
     return supportedTypes.indexOf(mimeType) !== -1;
   }
 
-  constructor(stream: MediaStream, config?: FallbackConfig) {
+  constructor(
+    stream: MediaStream,
+    config?: Partial<FallbackMediaRecorderConfig>
+  ) {
     this.stream = stream;
     this.buffers = [];
 
-    const defaultConfig = {
-      width: 640,
-      height: 480,
-      framerate: 30,
-      bitrate: 1200
-    };
-
     this.config = {
-      ...defaultConfig,
+      ...DEFAULT_CONFIG,
       ...getVideoSpecs(stream),
       ...config
     };
   }
-
-  private getWorkerPath() {
-    if (this.config && this.config.workerPath) {
-      return this.config.workerPath;
-    }
-
-    return DEFAULT_WORKER_PATH;
-  }
-
-  private getWasmPath() {
-    if (this.config && this.config.wasmPath) {
-      return this.config.wasmPath;
-    }
-
-    return DEFAULT_WASM_PATH;
-  }
-
   private createReadStream(): ReadableStream {
     const { width, height, framerate } = this.config;
     return new ReadableStream({
@@ -130,16 +108,8 @@ export class FallbackMediaRecorder {
   }
 
   private async createWorker(): Promise<Worker> {
-    let res = await fetch(this.getWorkerPath());
-    let buffer = await res.arrayBuffer();
-    const workerPath = URL.createObjectURL(
-      new Blob([buffer], {
-        type: "text/javascript"
-      })
-    );
-
-    this.worker = new Worker(workerPath);
-    this.worker.postMessage(this.getWasmPath());
+    this.worker = new Worker(path.join(this.config.base, WORKER_NAME));
+    this.worker.postMessage(path.join(this.config.base, WASM_NAME));
     this.worker.addEventListener("message", (event: MessageEvent) =>
       this.handleWasmMessage(event)
     );

@@ -13,7 +13,7 @@ const app = express();
 app.use(webpackMiddleware(webpackCompiler));
 app.use(webpackHotMiddleware(webpackCompiler));
 
-// Host OGV wasm/worker files
+// Host `ogv` wasm/worker files
 app.get("/ogv/*", (req, res) => {
   const fileRegex = /^\/ogv\/([a-zA-Z0-9\-]+\.(wasm|js))$/;
   const match = req.path.match(fileRegex);
@@ -21,6 +21,26 @@ app.get("/ogv/*", (req, res) => {
     const filePath = path.resolve(
       __dirname,
       "../node_modules/ogv/dist/",
+      match[1]
+    );
+
+    if (fs.existsSync(filePath)) {
+      res.status(200).sendFile(filePath);
+      return;
+    }
+  }
+
+  res.status(404).end();
+});
+
+// Host `webm-wasm` wasm/worker files
+app.get("/webm/*", (req, res) => {
+  const fileRegex = /^\/webm\/([a-zA-Z0-9\-]+\.(wasm|js|(js\.map)))$/;
+  const match = req.path.match(fileRegex);
+  if (match && match[1]) {
+    const filePath = path.resolve(
+      __dirname,
+      "../node_modules/webm-wasm/dist/",
       match[1]
     );
 

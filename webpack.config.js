@@ -14,12 +14,23 @@ module.exports = {
     ]
   },
   plugins: [
-    new CopyPlugin([
-      {
-        from: "./node_modules/ogv/dist/ogv-*",
-        flatten: true
-      }
-    ])
+    new CopyPlugin(
+      [
+        "ogv-worker-video.js",
+        "ogv-demuxer-webm-wasm*",
+        "ogv-decoder-video-vp8-wasm*"
+      ]
+        .map(f => ({
+          from: "./node_modules/ogv/dist/" + f,
+          flatten: true
+        }))
+        .concat(
+          ["webm-wasm*", "webm-worker.js*"].map(f => ({
+            from: "./node_modules/webm-wasm/dist/" + f,
+            flatten: true
+          }))
+        )
+    )
   ],
   resolve: {
     extensions: [".tsx", ".ts", ".js"]

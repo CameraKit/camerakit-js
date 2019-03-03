@@ -1,5 +1,9 @@
 import { CaptureStream } from "../entity";
-import { CaptureSource, StorageMethod } from "../types";
+import {
+  CaptureSource,
+  StorageMethod,
+  FallbackMediaRecorderConfig
+} from "../types";
 import settings from "../main/settings";
 
 export async function getDevices() {
@@ -25,12 +29,14 @@ export async function getDevices() {
 
 export async function createCaptureStream({
   video,
-  audio
+  audio,
+  fallbackConfig
 }: {
   video?: CaptureSource;
   audio?: CaptureSource;
+  fallbackConfig?: Partial<FallbackMediaRecorderConfig>;
 }) {
-  const captureStream = new CaptureStream({ video, audio });
+  const captureStream = new CaptureStream({ video, audio, fallbackConfig });
   await captureStream.init();
 
   return captureStream;

@@ -1,5 +1,6 @@
 import { NativeMediaRecorder } from "./NativeMediaRecorder";
 import { FallbackMediaRecorder } from "./FallbackMediaRecorder";
+import { FallbackMediaRecorderConfig } from "../types";
 import { downloadVideo } from "../util";
 
 export class Recorder {
@@ -7,6 +8,8 @@ export class Recorder {
 
   private mediaStream: MediaStream;
   private previewStream: MediaStream;
+
+  private fallbackConfig: Partial<FallbackMediaRecorderConfig> | undefined;
 
   /**
    * Recorder is used to take recordings of the CaptureStream
@@ -16,13 +19,16 @@ export class Recorder {
    */
   constructor({
     original,
-    preview
+    preview,
+    fallbackConfig
   }: {
     original: MediaStream;
     preview: MediaStream;
+    fallbackConfig?: Partial<FallbackMediaRecorderConfig>;
   }) {
     this.mediaStream = original;
     this.previewStream = preview;
+    this.fallbackConfig = fallbackConfig || undefined;
   }
 
   /**
@@ -54,7 +60,10 @@ export class Recorder {
         ? FallbackMediaRecorder
         : NativeMediaRecorder;
 
-    this.mediaRecorder = new ChosenMediaRecorder(this.selectMediaStream(opts));
+    this.mediaRecorder = new ChosenMediaRecorder(
+      this.selectMediaStream(opts),
+      this.fallbackConfig
+    );
     return this.mediaRecorder.start();
   }
 

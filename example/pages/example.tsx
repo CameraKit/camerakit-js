@@ -79,7 +79,10 @@ class Example extends React.Component {
       audio: audioSources.find(
         (s: CaptureSource) =>
           s.device.deviceId === (this.audioSource || { value: "" }).value
-      )
+      ),
+      fallbackConfig: {
+        base: "/webm"
+      }
     })
       .then(this.gotStream)
       .catch(this.handleError);
@@ -128,6 +131,7 @@ class Example extends React.Component {
       this.out.src = window.URL.createObjectURL(video);
       this.out.controls = true;
       this.out.width = 200;
+      this.out.height = 150;
       this.out.play();
     });
   };

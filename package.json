@@ -38,6 +38,7 @@
     "ts-loader": "^5.3.2",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.2",
+    "webm-wasm": "^0.4.1",
     "webpack": "^4.28.3",
     "webpack-cli": "^3.2.0",
     "webpack-dev-middleware": "^3.5.0",
