@@ -21,6 +21,7 @@ export class CaptureStream {
    * @param {Object} opts
    * @param {CaptureSource} [opts.video] - Video source to create CaptureStream from
    * @param {CaptureSource} [opts.audio] - Audio source to create CaptureStream from
+   * @param {Partial<FallbackMediaRecorderConfig>} [opts.fallbackConfig] - Optional config for FallbackMediaRecorder
    */
   constructor({
     video,

@@ -16,6 +16,7 @@ export class Recorder {
    * @param {Object} opts
    * @param {MediaStream} opts.original - The raw, higher resolution stream to record
    * @param {MediaStream} opts.preview - Another stream, can be used as a downscaled preview of the original stream
+   * @param {Partial<FallbackMediaRecorderConfig>} [opts.fallbackConfig] - Optional config for FallbackMediaRecorder
    */
   constructor({
     original,
@@ -69,6 +70,7 @@ export class Recorder {
 
   /**
    * Temporarily pauses video recording
+   * @returns {Promise<void>}
    */
   async pause() {
     if (this.mediaRecorder) {
@@ -78,7 +80,7 @@ export class Recorder {
 
   /**
    * Stops video recording
-   * @returns {(Blob | null)} The completed video recording stored in a Blob
+   * @returns {Promise<(Blob | null)>} The completed video recording stored in a Blob
    */
   async stop(): Promise<Blob | null> {
     if (this.mediaRecorder) {
@@ -121,6 +123,7 @@ export class Recorder {
   /**
    * Sets the mime type for all recorded videos
    * @param {string} mimeType - Mime type to be used
+   * @returns {boolean} If the mime type was set successfully
    */
   setMimeType(mimeType: string): boolean {
     const ChosenMediaRecorder =
