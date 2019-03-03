@@ -97,18 +97,44 @@ async function () {
 }
 ```
 
+## Safari support
+
+Safari doesn't currently support `video/webm` natively. To properly support `webm` playback, you'll need to expose the WebAssembly(wasm) and worker files packaged in `dist/browser/`.
+
+These files can be nested in a sub directory on your webserver. You'll need to update the `base` param on the `Loader` and pass it to `fallbackConfig` when calling `createCaptureStream`.
+
+Example hosting the wasm/worker files in a directory named `webm`:
+
+```js
+import camerakit from "camerakit-web";
+
+async function () {
+  // Point fallback video player to correct directory
+  camerakit.Loader.base = "/webm";
+
+  const myStream = await camerakit.createCaptureStream({
+    video: ...,
+    audio: ...,
+    fallbackConfig: {
+      base: "/webm" // Point fallback recorder
+    }
+  });
+}
+
+```
+
 ## API documentation
 
 ### `camerakit`
 
 #### Methods
 
-| Name                            | Parameters                                              | Return                                                            | Description                                                     |
-| ------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
-| `camerakit.getDevices`          | none                                                    | `Promise<{audio: Array<MediaSource>, video: Array<MediaSource>}>` | Returns available media devices for streaming                   |
-| `camerakit.createCaptureStream` | `{audio?: MediaSource, video?: MediaSource}`            | `Promise<CaptureStream>`                                          | Creates new `CaptureStream` instance with provided media inputs |
-| `camerakit.enableStorage`       | `{method?: "localStorage" \| "sessionStorage" \| null}` | `void`                                                            | Enables photo storage as a default                              |
-| `camerakit.disableStorage`      | none                                                    | `void`                                                            | Disables photo storage as a default                             |
+| Name                            | Parameters                                                                             | Return                                                            | Description                                                     |
+| ------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| `camerakit.getDevices`          | none                                                                                   | `Promise<{audio: Array<MediaSource>, video: Array<MediaSource>}>` | Returns available media devices for streaming                   |
+| `camerakit.createCaptureStream` | `{audio?: MediaSource, video?: MediaSource, fallbackConfig?: Partial<FallbackConfig>}` | `Promise<CaptureStream>`                                          | Creates new `CaptureStream` instance with provided media inputs |
+| `camerakit.enableStorage`       | `{method?: "localStorage" \| "sessionStorage" \| null}`                                | `void`                                                            | Enables photo storage as a default                              |
+| `camerakit.disableStorage`      | none                                                                                   | `void`                                                            | Disables photo storage as a default                             |
 
 #### Properties
 
@@ -172,6 +198,21 @@ A customized version of `OGVPlayer` which follows the `HTMLVideoElement` spec. S
 ### `Loader`
 
 Exposed `OGVLoader`. See more [here](https://github.com/brion/ogv.js/).
+
+### `FallbackConfig`
+
+**NOTE:** All fields are optional:
+
+```js
+{
+  base: string; // Base directory for wasm/worker files
+
+  width: number; // Video width
+  height: number; // Video height
+  bitrate: number; // Video bitrate
+  framerate: number; // Video framerate
+}
+```
 
 ## License
 
