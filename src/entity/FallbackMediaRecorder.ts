@@ -2,7 +2,7 @@ import {
   ReadableStream,
   WritableStream
 } from "@mattiasbuelens/web-streams-polyfill/ponyfill";
-import { getVideoSpecs } from "../util";
+import { getVideoSpecs, injectMetadata } from "../util";
 
 const DEFAULT_WORKER_PATH =
   "https://unpkg.com/webm-wasm@latest/dist/webm-worker.js";
@@ -190,9 +190,11 @@ export class FallbackMediaRecorder {
   async stop(): Promise<Blob> {
     this.destroy();
 
-    this.latestRecording = new Blob(this.buffers, {
+    let blob = new Blob(this.buffers, {
       type: this.mimeType
     });
+
+    this.latestRecording = await injectMetadata(blob);
 
     return this.latestRecording;
   }

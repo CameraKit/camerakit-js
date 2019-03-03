@@ -3,8 +3,6 @@ import { CaptureSource, StorageMethod } from "../types";
 import settings from "../main/settings";
 
 export async function getDevices() {
-  // TODO: Throw unsupported error for Safari
-
   const video: Array<CaptureSource> = [];
   const audio: Array<CaptureSource> = [];
 

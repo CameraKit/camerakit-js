@@ -37,6 +37,10 @@ class Example extends React.Component {
       videoTaken: false,
       recording: false
     };
+
+    CameraKitWeb.Loader.base = "/ogv";
+    const videoElem = new CameraKitWeb.Player();
+    this.out = videoElem;
   }
 
   handleError = (error: Error) => {
@@ -56,6 +60,7 @@ class Example extends React.Component {
     this.setState({ stream });
     this.src.srcObject = stream.getMediaStream();
     this.src.play();
+    this.src.muted = true;
   };
 
   requestCamera = () => {
@@ -122,6 +127,7 @@ class Example extends React.Component {
       this.out.srcObject = null;
       this.out.src = window.URL.createObjectURL(video);
       this.out.controls = true;
+      this.out.width = 200;
       this.out.play();
     });
   };
@@ -228,11 +234,13 @@ class Example extends React.Component {
           </button>
         )}
         <br />
+
         {videoTaken && (
-          <video
-            width="200"
-            ref={video => {
-              this.out = video;
+          <div
+            ref={ref => {
+              if (this.out && ref) {
+                ref.appendChild(this.out);
+              }
             }}
           />
         )}
