@@ -6,6 +6,10 @@ import {
 } from "../types";
 import settings from "../main/settings";
 
+/**
+ * Returns media devices available to browser
+ * @returns {Promise<{audio: Array<CaptureSource>, video: Array<CaptureSource>}>} Available audio and video sources
+ */
 export async function getDevices() {
   const video: Array<CaptureSource> = [];
   const audio: Array<CaptureSource> = [];
@@ -27,6 +31,10 @@ export async function getDevices() {
   return { audio, video };
 }
 
+/**
+ * Creates capture stream via chosen CaptureSource's
+ * @returns {Promise<CaptureStream>} Freshly created CaptureStream from sources
+ */
 export async function createCaptureStream({
   video,
   audio,
@@ -42,6 +50,10 @@ export async function createCaptureStream({
   return captureStream;
 }
 
+/**
+ * Enables saving of images to LocalStorage or SessionStorage
+ * @param {StorageMethod} [method] - String representing method to use
+ */
 export function enableStorage(method?: StorageMethod) {
   if (method !== undefined) {
     settings.storageMethod = method;
@@ -50,6 +62,9 @@ export function enableStorage(method?: StorageMethod) {
   }
 }
 
+/**
+ * Disables local storing of images
+ */
 export function disableStorage() {
   settings.storageMethod = null;
 }

@@ -83,12 +83,12 @@ async function () {
   // Wait...
 
   // Pause the recording & resume
-  myRecorder.pause();
-  myRecorder.start();
+  await myRecorder.pause();
+  await myRecorder.start();
 
   // Wait some more...
 
-  const recordedVideo = myRecorder.stop(); // Use the video yourself
+  const recordedVideo = await myRecorder.stop(); // Use the video yourself
 
   myRecorder.downloadLatestRecording(); // Download the video direct from browser
 
@@ -101,12 +101,21 @@ async function () {
 
 ### `camerakit`
 
+#### Methods
+
 | Name                            | Parameters                                              | Return                                                            | Description                                                     |
 | ------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
 | `camerakit.getDevices`          | none                                                    | `Promise<{audio: Array<MediaSource>, video: Array<MediaSource>}>` | Returns available media devices for streaming                   |
 | `camerakit.createCaptureStream` | `{audio?: MediaSource, video?: MediaSource}`            | `Promise<CaptureStream>`                                          | Creates new `CaptureStream` instance with provided media inputs |
 | `camerakit.enableStorage`       | `{method?: "localStorage" \| "sessionStorage" \| null}` | `void`                                                            | Enables photo storage as a default                              |
 | `camerakit.disableStorage`      | none                                                    | `void`                                                            | Disables photo storage as a default                             |
+
+#### Properties
+
+| Name            | Type        |
+| --------------- | ----------- |
+| `stream.Player` | `OGVPlayer` |
+| `stream.Loader` | `OGVLoader` |
 
 ### `CaptureStream`
 
@@ -145,15 +154,25 @@ Used for recording video of the the `CaptureStream`.
 
 ### Instance methods
 
-| name                               | Parameters                           | Return    | Description                                                |
-| ---------------------------------- | ------------------------------------ | --------- | ---------------------------------------------------------- |
-| `recorder.start`                   | `{source?: "original" \| "preview"}` | `void`    | Starts the recording from the specified source             |
-| `recorder.stop`                    | none                                 | `?Blob`   | Stops the recording and returns a completed video file     |
-| `recorder.pause`                   | none                                 | `void`    | Pauses the recording until resumed with `recorder.start()` |
-| `recorder.getLatestRecording`      | none                                 | `?Blob`   | Returns last recorded video file                           |
-| `recorder.downloadLatestRecording` | `filename?: string`                  | `boolean` | Creates file download from last video recording            |
-| `recorder.setMimeType`             | `mimeType: string`                   | `void`    | Sets the video recording mime type for all sources         |
+| name                               | Parameters                           | Return           | Description                                                |
+| ---------------------------------- | ------------------------------------ | ---------------- | ---------------------------------------------------------- |
+| `recorder.start`                   | `{source?: "original" \| "preview"}` | `Promise<void>`  | Starts the recording from the specified source             |
+| `recorder.stop`                    | none                                 | `Promise<?Blob>` | Stops the recording and returns a completed video file     |
+| `recorder.pause`                   | none                                 | `Promise<void>`  | Pauses the recording until resumed with `recorder.start()` |
+| `recorder.getLatestRecording`      | none                                 | `?Blob`          | Returns last recorded video file                           |
+| `recorder.downloadLatestRecording` | `filename?: string`                  | `boolean`        | Creates file download from last video recording            |
+| `recorder.setMimeType`             | `mimeType: string`                   | `boolean`        | Sets the video recording mime type for all sources         |
+
+### `Player`
+
+A customized version of `OGVPlayer` which follows the `HTMLVideoElement` spec. See more [here](https://github.com/brion/ogv.js/).
+
+**NOTE:** If your browser suppors the exported video, creating a `Player` instance will return a standard `HTMLVideoElement`.
+
+### `Loader`
+
+Exposed `OGVLoader`. See more [here](https://github.com/brion/ogv.js/).
 
 ## License
 
-CameraKit Website is [MIT License](https://github.com/CameraKit/CameraKit-Android/blob/master/LICENSE)
+CameraKit Web is [MIT License](https://github.com/CameraKit/camerakit-web/blob/master/LICENSE)
