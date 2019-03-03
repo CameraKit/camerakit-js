@@ -99,7 +99,9 @@ async function () {
 
 ## Safari support
 
-Safari doesn't currently support `video/webm` natively. To properly support `webm` playback, you'll need to expose the WebAssembly(wasm) and worker files packaged in `dist/browser/`.
+**NOTE:** Safari audio recording not currently supported.
+
+Safari doesn't currently support `video/webm` natively. To properly support `webm` video playback, you'll need to expose the WebAssembly(wasm) and worker files packaged in `dist/browser/`.
 
 These files can be nested in a sub directory on your webserver. You'll need to update the `base` param on the `Loader` and pass it to `fallbackConfig` when calling `createCaptureStream`.
 
