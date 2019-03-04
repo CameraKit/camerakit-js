@@ -64,6 +64,8 @@ Or, alternatively, you can import via a script tag:
 <!-- You can now access `camerakit` from the global scope -->
 ```
 
+To properly support `webm` video recording and playback on Safari, you'll need to host the WebAssembly(wasm) and worker files packaged in `dist/browser/` on your webserver. The video recorder and player require these in order to function properly on Safari.
+
 Example usage:
 
 ```js
@@ -83,30 +85,71 @@ async function () {
   // Wait...
 
   // Pause the recording & resume
-  myRecorder.pause();
-  myRecorder.start();
+  await myRecorder.pause();
+  await myRecorder.start();
 
   // Wait some more...
 
-  const recordedVideo = myRecorder.stop(); // Use the video yourself
+  const recordedVideo = await myRecorder.stop(); // Use the video yourself
 
   myRecorder.downloadLatestRecording(); // Download the video direct from browser
 
   // Stop using camera
   myStream.destroy();
+
+  // Play video via camerakit player
+  const player = new camerakit.Player();
+  player.src = window.URL.createObjectURL(recordedVideo);
+
+  // Use the video player wherever you want!
+  document.getElementById("your-player-container").appendChild(player);
+  player.play();
 }
+```
+
+## Safari support details
+
+**Safari audio recording and video seeking are not currently supported.**
+
+If you'd like to host the wasm/worker files in a subdirectory, you'll need to update the `base` param on `camerakit.Loader` and as well as to `fallbackConfig` when calling `createCaptureStream`:
+
+```js
+import camerakit from "camerakit-web";
+
+async function () {
+  // Point fallback video player to correct directory
+  camerakit.Loader.base = "/webm";
+
+  const myStream = await camerakit.createCaptureStream({
+    video: ...,
+    audio: ...,
+    fallbackConfig: {
+      base: "/webm" // Point fallback recorder
+    }
+  });
+}
+
 ```
 
 ## API documentation
 
 ### `camerakit`
 
-| Name                            | Parameters                                              | Return                                                            | Description                                                     |
-| ------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
-| `camerakit.getDevices`          | none                                                    | `Promise<{audio: Array<MediaSource>, video: Array<MediaSource>}>` | Returns available media devices for streaming                   |
-| `camerakit.createCaptureStream` | `{audio?: MediaSource, video?: MediaSource}`            | `Promise<CaptureStream>`                                          | Creates new `CaptureStream` instance with provided media inputs |
-| `camerakit.enableStorage`       | `{method?: "localStorage" \| "sessionStorage" \| null}` | `void`                                                            | Enables photo storage as a default                              |
-| `camerakit.disableStorage`      | none                                                    | `void`                                                            | Disables photo storage as a default                             |
+#### Methods
+
+| Name                            | Parameters                                                                             | Return                                                            | Description                                                     |
+| ------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| `camerakit.getDevices`          | none                                                                                   | `Promise<{audio: Array<MediaSource>, video: Array<MediaSource>}>` | Returns available media devices for streaming                   |
+| `camerakit.createCaptureStream` | `{audio?: MediaSource, video?: MediaSource, fallbackConfig?: Partial<FallbackConfig>}` | `Promise<CaptureStream>`                                          | Creates new `CaptureStream` instance with provided media inputs |
+| `camerakit.enableStorage`       | `{method?: "localStorage" \| "sessionStorage" \| null}`                                | `void`                                                            | Enables photo storage as a default                              |
+| `camerakit.disableStorage`      | none                                                                                   | `void`                                                            | Disables photo storage as a default                             |
+
+#### Properties
+
+| Name               | Type     |
+| ------------------ | -------- |
+| `camerakit.Player` | `Player` |
+| `camerakit.Loader` | `Loader` |
 
 ### `CaptureStream`
 
@@ -145,15 +188,59 @@ Used for recording video of the the `CaptureStream`.
 
 ### Instance methods
 
-| name                               | Parameters                           | Return    | Description                                                |
-| ---------------------------------- | ------------------------------------ | --------- | ---------------------------------------------------------- |
-| `recorder.start`                   | `{source?: "original" \| "preview"}` | `void`    | Starts the recording from the specified source             |
-| `recorder.stop`                    | none                                 | `?Blob`   | Stops the recording and returns a completed video file     |
-| `recorder.pause`                   | none                                 | `void`    | Pauses the recording until resumed with `recorder.start()` |
-| `recorder.getLatestRecording`      | none                                 | `?Blob`   | Returns last recorded video file                           |
-| `recorder.downloadLatestRecording` | `filename?: string`                  | `boolean` | Creates file download from last video recording            |
-| `recorder.setMimeType`             | `mimeType: string`                   | `void`    | Sets the video recording mime type for all sources         |
+| name                               | Parameters                           | Return           | Description                                                |
+| ---------------------------------- | ------------------------------------ | ---------------- | ---------------------------------------------------------- |
+| `recorder.start`                   | `{source?: "original" \| "preview"}` | `Promise<void>`  | Starts the recording from the specified source             |
+| `recorder.stop`                    | none                                 | `Promise<?Blob>` | Stops the recording and returns a completed video file     |
+| `recorder.pause`                   | none                                 | `Promise<void>`  | Pauses the recording until resumed with `recorder.start()` |
+| `recorder.getLatestRecording`      | none                                 | `?Blob`          | Returns last recorded video file                           |
+| `recorder.downloadLatestRecording` | `filename?: string`                  | `boolean`        | Creates file download from last video recording            |
+| `recorder.setMimeType`             | `mimeType: string`                   | `boolean`        | Sets the video recording mime type for all sources         |
+
+### `Player`
+
+A player following the `HTMLVideoElement` spec. Reccomended for playback as it can serve as a fallback for browsers that don't natively support `webm`.
+
+Example:
+
+```js
+const player = new camerakit.Player();
+
+player.src = window.URL.createObjectURL(...);
+
+player.play();
+player.pause();
+player.muted = true;
+player.width = 1920;
+player.height = 1080;
+
+// Restart video playback
+player.stop();
+player.currentTime = 0;
+player.play();
+```
+
+**NOTE:** If your browser supports the exported video, creating a `Player` instance will return a vanilla `HTMLVideoElement`.
+
+### `Loader`
+
+Exposed `OGVLoader`.
+
+### `FallbackConfig`
+
+**NOTE:** All fields are optional:
+
+```js
+{
+  base: string; // Base directory for wasm/worker files
+
+  width: number; // Video width
+  height: number; // Video height
+  bitrate: number; // Video bitrate
+  framerate: number; // Video framerate
+}
+```
 
 ## License
 
-CameraKit Website is [MIT License](https://github.com/CameraKit/CameraKit-Android/blob/master/LICENSE)
+CameraKit Web is [MIT License](https://github.com/CameraKit/camerakit-web/blob/master/LICENSE)

@@ -1,6 +1,6 @@
-import { CaptureSource } from "../types";
 import { Shutter } from "./Shutter";
 import { Recorder } from "./Recorder";
+import { CaptureSource, FallbackMediaRecorderConfig } from "../types";
 
 export class CaptureStream {
   private mediaStream: MediaStream;
@@ -11,6 +11,8 @@ export class CaptureStream {
   private previewVideoSource = this.videoSource;
   private previewAudioSource = this.audioSource;
 
+  private fallbackConfig: Partial<FallbackMediaRecorderConfig> | undefined;
+
   shutter: Shutter;
   recorder: Recorder;
 
@@ -19,16 +21,20 @@ export class CaptureStream {
    * @param {Object} opts
    * @param {CaptureSource} [opts.video] - Video source to create CaptureStream from
    * @param {CaptureSource} [opts.audio] - Audio source to create CaptureStream from
+   * @param {Partial<FallbackMediaRecorderConfig>} [opts.fallbackConfig] - Optional config for FallbackMediaRecorder
    */
   constructor({
     video,
-    audio
+    audio,
+    fallbackConfig
   }: {
     video?: CaptureSource;
     audio?: CaptureSource;
+    fallbackConfig?: Partial<FallbackMediaRecorderConfig>;
   }) {
     this.previewVideoSource = this.videoSource = video;
     this.previewAudioSource = this.audioSource = audio;
+    this.fallbackConfig = fallbackConfig;
 
     if (!video && !audio) {
       throw new Error("No media source provided to stream");
@@ -113,7 +119,8 @@ export class CaptureStream {
   private async initalizeRecorder(): Promise<Recorder> {
     this.recorder = new Recorder({
       original: this.mediaStream,
-      preview: this.previewStream
+      preview: this.previewStream,
+      fallbackConfig: this.fallbackConfig
     });
 
     return this.recorder;
