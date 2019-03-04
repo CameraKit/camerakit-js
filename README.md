@@ -109,7 +109,7 @@ async function () {
 
 ## Safari support details
 
-**Safari audio recording not currently supported.**
+**Safari audio recording and video seeking are not currently supported.**
 
 If you'd like to host the wasm/worker files in a subdirectory, you'll need to update the `base` param on `camerakit.Loader` and as well as to `fallbackConfig` when calling `createCaptureStream`:
 
@@ -213,6 +213,11 @@ player.pause();
 player.muted = true;
 player.width = 1920;
 player.height = 1080;
+
+// Restart video playback
+player.stop();
+player.currentTime = 0;
+player.play();
 ```
 
 **NOTE:** If your browser supports the exported video, creating a `Player` instance will return a vanilla `HTMLVideoElement`.
