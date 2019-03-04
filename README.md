@@ -64,6 +64,8 @@ Or, alternatively, you can import via a script tag:
 <!-- You can now access `camerakit` from the global scope -->
 ```
 
+To properly support `webm` video recording and playback on Safari, you'll need to host the WebAssembly(wasm) and worker files packaged in `dist/browser/` on your webserver. The video recorder and player require these in order to function properly on Safari.
+
 Example usage:
 
 ```js
@@ -94,18 +96,22 @@ async function () {
 
   // Stop using camera
   myStream.destroy();
+
+  // Play video via camerakit player
+  const player = new camerakit.Player();
+  player.src = window.URL.createObjectURL(recordedVideo);
+
+  // Use the video player wherever you want!
+  document.getElementById("your-player-container").appendChild(player);
+  player.play();
 }
 ```
 
-## Safari support
+## Safari support details
 
-**NOTE:** Safari audio recording not currently supported.
+**Safari audio recording not currently supported.**
 
-Safari doesn't currently support `video/webm` natively. To properly support `webm` video playback, you'll need to expose the WebAssembly(wasm) and worker files packaged in `dist/browser/`.
-
-These files can be nested in a sub directory on your webserver. You'll need to update the `base` param on the `Loader` and pass it to `fallbackConfig` when calling `createCaptureStream`.
-
-Example hosting the wasm/worker files in a directory named `webm`:
+If you'd like to host the wasm/worker files in a subdirectory, you'll need to update the `base` param on `camerakit.Loader` and as well as to `fallbackConfig` when calling `createCaptureStream`:
 
 ```js
 import camerakit from "camerakit-web";
@@ -140,10 +146,10 @@ async function () {
 
 #### Properties
 
-| Name            | Type        |
-| --------------- | ----------- |
-| `stream.Player` | `OGVPlayer` |
-| `stream.Loader` | `OGVLoader` |
+| Name               | Type     |
+| ------------------ | -------- |
+| `camerakit.Player` | `Player` |
+| `camerakit.Loader` | `Loader` |
 
 ### `CaptureStream`
 
@@ -193,13 +199,27 @@ Used for recording video of the the `CaptureStream`.
 
 ### `Player`
 
-A customized version of `OGVPlayer` which follows the `HTMLVideoElement` spec. See more [here](https://github.com/brion/ogv.js/).
+A player following the `HTMLVideoElement` spec. Reccomended for playback as it can serve as a fallback for browsers that don't natively support `webm`.
 
-**NOTE:** If your browser suppors the exported video, creating a `Player` instance will return a standard `HTMLVideoElement`.
+Example:
+
+```js
+const player = new camerakit.Player();
+
+player.src = window.URL.createObjectURL(...);
+
+player.play();
+player.pause();
+player.muted = true;
+player.width = 1920;
+player.height = 1080;
+```
+
+**NOTE:** If your browser supports the exported video, creating a `Player` instance will return a vanilla `HTMLVideoElement`.
 
 ### `Loader`
 
-Exposed `OGVLoader`. See more [here](https://github.com/brion/ogv.js/).
+Exposed `OGVLoader`.
 
 ### `FallbackConfig`
 
