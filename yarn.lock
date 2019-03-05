@@ -494,6 +494,11 @@ atob@^2.1.1:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
+audio-recorder-polyfill@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/audio-recorder-polyfill/-/audio-recorder-polyfill-0.1.5.tgz#29810a4f031dfea7b839d6002455424f8ec192e2"
+  integrity sha512-yi6Ybf1MPBUCd2ZnF9VfUgEH6kDVH4lf5aIBvmcxQC76Xvu6w/sESXftAVwGKgPoLT9IgUV1wG7S0vKae8dk9A==
+
 balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"

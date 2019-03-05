@@ -13,6 +13,7 @@ type State = {
   stream: CaptureStream | undefined;
   video: Blob | undefined;
   videoTaken: boolean;
+  audio: Blob | null;
   recording: boolean;
 };
 
@@ -35,6 +36,7 @@ class Example extends React.Component {
       stream: undefined,
       video: undefined,
       videoTaken: false,
+      audio: null,
       recording: false
     };
 
@@ -122,18 +124,21 @@ class Example extends React.Component {
   stopRecording = async () => {
     let { stream } = this.state;
     if (!stream) return;
-    const buffer = await stream.recorder.stop();
-    this.setState({ video: buffer, recording: false, videoTaken: true }, () => {
-      const { video } = this.state;
-      if (!video || !this.out) return;
-      this.out.src = "";
-      this.out.srcObject = null;
-      this.out.src = window.URL.createObjectURL(video);
-      this.out.controls = true;
-      this.out.width = 200;
-      this.out.height = 150;
-      this.out.play();
-    });
+    const [buffer, audioBuffer] = await stream.recorder.stop();
+    this.setState(
+      { video: buffer, audio: audioBuffer, recording: false, videoTaken: true },
+      () => {
+        const { video } = this.state;
+        if (!video || !this.out) return;
+        this.out.src = "";
+        this.out.srcObject = null;
+        this.out.src = window.URL.createObjectURL(video);
+        this.out.controls = true;
+        this.out.width = 200;
+        this.out.height = 150;
+        this.out.play();
+      }
+    );
   };
 
   downloadVideo = () => {
