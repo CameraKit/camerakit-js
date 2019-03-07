@@ -13,6 +13,7 @@ type State = {
   stream: CaptureStream | undefined;
   video: Blob | undefined;
   videoTaken: boolean;
+  audio: Blob | null;
   recording: boolean;
 };
 
@@ -35,8 +36,13 @@ class Example extends React.Component {
       stream: undefined,
       video: undefined,
       videoTaken: false,
+      audio: null,
       recording: false
     };
+
+    CameraKitWeb.Loader.base = "/ogv";
+    const videoElem = new CameraKitWeb.Player();
+    this.out = videoElem;
   }
 
   handleError = (error: Error) => {
@@ -56,6 +62,7 @@ class Example extends React.Component {
     this.setState({ stream });
     this.src.srcObject = stream.getMediaStream();
     this.src.play();
+    this.src.muted = true;
   };
 
   requestCamera = () => {
@@ -74,7 +81,10 @@ class Example extends React.Component {
       audio: audioSources.find(
         (s: CaptureSource) =>
           s.device.deviceId === (this.audioSource || { value: "" }).value
-      )
+      ),
+      fallbackConfig: {
+        base: "/webm"
+      }
     })
       .then(this.gotStream)
       .catch(this.handleError);
@@ -104,26 +114,31 @@ class Example extends React.Component {
     stream.shutter.downloadLatestCapture();
   };
 
-  startRecording = () => {
+  startRecording = async () => {
     const { stream } = this.state;
     if (!stream) return;
-    stream.recorder.start();
+    await stream.recorder.start();
     this.setState({ recording: true });
   };
 
-  stopRecording = () => {
+  stopRecording = async () => {
     let { stream } = this.state;
     if (!stream) return;
-    const buffer = stream.recorder.stop();
-    this.setState({ video: buffer, recording: false, videoTaken: true }, () => {
-      const { video } = this.state;
-      if (!video || !this.out) return;
-      this.out.src = "";
-      this.out.srcObject = null;
-      this.out.src = window.URL.createObjectURL(video);
-      this.out.controls = true;
-      this.out.play();
-    });
+    const [buffer, audioBuffer] = await stream.recorder.stop();
+    this.setState(
+      { video: buffer, audio: audioBuffer, recording: false, videoTaken: true },
+      () => {
+        const { video } = this.state;
+        if (!video || !this.out) return;
+        this.out.src = "";
+        this.out.srcObject = null;
+        this.out.src = window.URL.createObjectURL(video);
+        this.out.controls = true;
+        this.out.width = 200;
+        this.out.height = 150;
+        this.out.play();
+      }
+    );
   };
 
   downloadVideo = () => {
@@ -228,11 +243,13 @@ class Example extends React.Component {
           </button>
         )}
         <br />
+
         {videoTaken && (
-          <video
-            width="200"
-            ref={video => {
-              this.out = video;
+          <div
+            ref={ref => {
+              if (this.out && ref) {
+                ref.appendChild(this.out);
+              }
             }}
           />
         )}

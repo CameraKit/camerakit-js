@@ -1,8 +1,8 @@
 {
   "private": true,
   "name": "camerakit-web",
-  "version": "0.1.0",
-  "description": "Camerakit for the browser.",
+  "version": "0.2.0",
+  "description": "CameraKit for web and javascript projects.",
   "main": "./dist/compiled/index.js",
   "types": "./dist/compiled/index.d.ts",
   "scripts": {
@@ -16,7 +16,11 @@
   "author": "Alterac, Inc.",
   "license": "MIT",
   "dependencies": {
+    "@mattiasbuelens/web-streams-polyfill": "^0.2.1",
     "@types/dom-mediacapture-record": "^1.0.0",
+    "audio-recorder-polyfill": "^0.1.5",
+    "ogv": "^1.6.0",
+    "ts-ebml": "^2.0.2",
     "webrtc-adapter": "^7.1.1"
   },
   "devDependencies": {
@@ -27,6 +31,7 @@
     "@types/webpack-dev-middleware": "^2.0.2",
     "@types/webpack-hot-middleware": "^2.16.4",
     "body-parser": "^1.18.3",
+    "copy-webpack-plugin": "^5.0.0",
     "express": "^4.16.4",
     "express-sslify": "^1.2.0",
     "react": "^16.7.0",
@@ -34,6 +39,7 @@
     "ts-loader": "^5.3.2",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.2",
+    "webm-wasm": "^0.4.1",
     "webpack": "^4.28.3",
     "webpack-cli": "^3.2.0",
     "webpack-dev-middleware": "^3.5.0",

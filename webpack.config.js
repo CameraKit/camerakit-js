@@ -1,4 +1,5 @@
 const path = require("path");
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   entry: "./src/index.ts",
@@ -12,12 +13,31 @@ module.exports = {
       }
     ]
   },
+  plugins: [
+    new CopyPlugin(
+      [
+        "ogv-worker-video.js",
+        "ogv-demuxer-webm-wasm*",
+        "ogv-decoder-video-vp8-wasm*"
+      ]
+        .map(f => ({
+          from: "./node_modules/ogv/dist/" + f,
+          flatten: true
+        }))
+        .concat(
+          ["webm-wasm*", "webm-worker.js*"].map(f => ({
+            from: "./node_modules/webm-wasm/dist/" + f,
+            flatten: true
+          }))
+        )
+    )
+  ],
   resolve: {
     extensions: [".tsx", ".ts", ".js"]
   },
   output: {
     filename: "browser.min.js",
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, "dist/browser"),
     library: "camerakit"
   }
 };

@@ -1,10 +1,16 @@
 import { CaptureStream } from "../entity";
-import { CaptureSource } from "../types";
+import {
+  CaptureSource,
+  StorageMethod,
+  FallbackMediaRecorderConfig
+} from "../types";
 import settings from "../main/settings";
 
+/**
+ * Returns media devices available to browser
+ * @returns {Promise<{audio: Array<CaptureSource>, video: Array<CaptureSource>}>} Available audio and video sources
+ */
 export async function getDevices() {
-  // TODO: Throw unsupported error for Safari
-
   const video: Array<CaptureSource> = [];
   const audio: Array<CaptureSource> = [];
 
@@ -25,22 +31,30 @@ export async function getDevices() {
   return { audio, video };
 }
 
+/**
+ * Creates capture stream via chosen CaptureSource's
+ * @returns {Promise<CaptureStream>} Freshly created CaptureStream from sources
+ */
 export async function createCaptureStream({
   video,
-  audio
+  audio,
+  fallbackConfig
 }: {
   video?: CaptureSource;
   audio?: CaptureSource;
+  fallbackConfig?: Partial<FallbackMediaRecorderConfig>;
 }) {
-  const captureStream = new CaptureStream({ video, audio });
+  const captureStream = new CaptureStream({ video, audio, fallbackConfig });
   await captureStream.init();
 
   return captureStream;
 }
 
-export function enableStorage(
-  method?: "localStorage" | "sessionStorage" | null
-) {
+/**
+ * Enables saving of images to LocalStorage or SessionStorage
+ * @param {StorageMethod} [method] - String representing method to use
+ */
+export function enableStorage(method?: StorageMethod) {
   if (method !== undefined) {
     settings.storageMethod = method;
   } else {
@@ -48,6 +62,9 @@ export function enableStorage(
   }
 }
 
+/**
+ * Disables local storing of images
+ */
 export function disableStorage() {
   settings.storageMethod = null;
 }
