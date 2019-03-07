@@ -188,14 +188,14 @@ Used for recording video of the the `CaptureStream`.
 
 ### Instance methods
 
-| name                               | Parameters                           | Return           | Description                                                |
-| ---------------------------------- | ------------------------------------ | ---------------- | ---------------------------------------------------------- |
-| `recorder.start`                   | `{source?: "original" \| "preview"}` | `Promise<void>`  | Starts the recording from the specified source             |
-| `recorder.stop`                    | none                                 | `Promise<?Blob>` | Stops the recording and returns a completed video file     |
-| `recorder.pause`                   | none                                 | `Promise<void>`  | Pauses the recording until resumed with `recorder.start()` |
-| `recorder.getLatestRecording`      | none                                 | `?Blob`          | Returns last recorded video file                           |
-| `recorder.downloadLatestRecording` | `filename?: string`                  | `boolean`        | Creates file download from last video recording            |
-| `recorder.setMimeType`             | `mimeType: string`                   | `boolean`        | Sets the video recording mime type for all sources         |
+| name                               | Parameters                           | Return                    | Description                                                                                                            |
+| ---------------------------------- | ------------------------------------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `recorder.start`                   | `{source?: "original" \| "preview"}` | `Promise<void>`           | Starts the recording from the specified source                                                                         |
+| `recorder.stop`                    | none                                 | `Promise<?[Blob, ?Blob]>` | Stops the recording and returns an array. First Blob is Video (and audio if available), the second is Audio on Safari. |
+| `recorder.pause`                   | none                                 | `Promise<void>`           | Pauses the recording until resumed with `recorder.start()`                                                             |
+| `recorder.getLatestRecording`      | none                                 | `?Blob`                   | Returns last recorded video file                                                                                       |
+| `recorder.downloadLatestRecording` | `filename?: string`                  | `boolean`                 | Creates file download from last video recording                                                                        |
+| `recorder.setMimeType`             | `mimeType: string`                   | `boolean`                 | Sets the video recording mime type for all sources                                                                     |
 
 ### `Player`
 
