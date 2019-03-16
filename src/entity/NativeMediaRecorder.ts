@@ -1,5 +1,3 @@
-import { downloadVideo } from "../util";
-
 export class NativeMediaRecorder {
   private stream: MediaStream;
   private mediaRecorder: MediaRecorder | null;
@@ -90,25 +88,17 @@ export class NativeMediaRecorder {
     this.createRecorder();
   }
 
-  async stop(): Promise<[Blob, Blob | null]> {
+  async stop(): Promise<Blob> {
     this.destroy();
 
     this.latestRecording = new Blob(this.blobs, {
       type: this.mimeType
     });
 
-    return [this.latestRecording, null];
+    return this.latestRecording;
   }
 
   getLatestRecording() {
     return this.latestRecording;
-  }
-
-  downloadLatestRecording(filename?: string): boolean {
-    if (!this.latestRecording) {
-      return false;
-    }
-
-    return downloadVideo(this.latestRecording, filename);
   }
 }

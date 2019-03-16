@@ -33,7 +33,3 @@ export function downloadImage(image: string, filename?: string): boolean {
 export function downloadVideo(video: Blob, filename?: string): boolean {
   return downloadBlob(video, filename);
 }
-
-export function downloadAudio(video: Blob, filename?: string): boolean {
-  return downloadBlob(video, filename || "audio");
-}

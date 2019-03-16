@@ -3,15 +3,8 @@ import {
   WritableStream
 } from "@mattiasbuelens/web-streams-polyfill/ponyfill";
 import * as path from "path";
-import {
-  getVideoSpecs,
-  injectMetadata,
-  downloadVideo,
-  downloadAudio
-} from "../util";
+import { getVideoSpecs, injectMetadata } from "../util";
 import { FallbackMediaRecorderConfig } from "../types";
-
-const AudioRecorder = require("audio-recorder-polyfill");
 
 const WORKER_NAME = "webm-worker.js";
 const WASM_NAME = "webm-wasm.wasm";
@@ -25,14 +18,6 @@ const DEFAULT_CONFIG: FallbackMediaRecorderConfig = {
   bitrate: 1200
 };
 
-function nextMessage(target: MediaRecorder, what: string): Promise<Blob> {
-  return new Promise(resolve => {
-    return target.addEventListener(what, (e: BlobEvent) => resolve(e.data), {
-      once: true
-    });
-  });
-}
-
 export class FallbackMediaRecorder {
   private config: FallbackMediaRecorderConfig;
   private stream: MediaStream;
@@ -40,9 +25,6 @@ export class FallbackMediaRecorder {
   private buffers: Array<Buffer>;
   private latestRecording: Blob | null;
   private mimeType: string = "video/webm";
-
-  private audioRecorder: MediaRecorder | null;
-  private latestAudioRecording: Blob | null;
 
   paused: boolean;
 
@@ -135,29 +117,6 @@ export class FallbackMediaRecorder {
     return this.worker;
   }
 
-  private createRecorder() {
-    this.audioRecorder = null;
-
-    try {
-      this.audioRecorder = new AudioRecorder(this.stream, {
-        mimeType: this.mimeType
-      });
-    } catch (e) {
-      console.error("Exception while creating audioRecorder:", e);
-      return;
-    }
-
-    if (!this.audioRecorder) {
-      return;
-    }
-
-    console.log("Created audioRecorder", this.audioRecorder);
-    this.audioRecorder.onstop = (event: Object) => {
-      console.log("Recorder stopped: ", event);
-    };
-    this.audioRecorder.start(); // collect 10ms of data
-  }
-
   private destroy() {
     if (!this.worker) {
       return;
@@ -178,7 +137,6 @@ export class FallbackMediaRecorder {
     this.buffers = [];
     this.paused = false;
     this.latestRecording = null;
-    this.latestAudioRecording = null;
   }
 
   resume() {
@@ -193,48 +151,25 @@ export class FallbackMediaRecorder {
 
     this.resetRecording();
     await this.createWorker();
-    this.createRecorder();
   }
 
   async pause() {
     this.paused = true;
   }
 
-  async stop(): Promise<[Blob, Blob | null]> {
+  async stop(): Promise<Blob> {
     this.destroy();
 
-    if (this.audioRecorder) {
-      this.audioRecorder.stop();
-      this.latestAudioRecording = await nextMessage(
-        this.audioRecorder,
-        "dataavailable"
-      );
-    }
-
-    let videoBlob = new Blob(this.buffers, {
+    let blob = new Blob(this.buffers, {
       type: this.mimeType
     });
 
-    this.latestRecording = await injectMetadata(videoBlob);
+    this.latestRecording = await injectMetadata(blob);
 
-    return [this.latestRecording, this.latestAudioRecording];
+    return this.latestRecording;
   }
 
   getLatestRecording() {
     return this.latestRecording;
-  }
-
-  downloadLatestRecording(filename?: string): boolean {
-    if (!this.latestRecording) {
-      return false;
-    }
-
-    setTimeout(() => {
-      if (this.latestAudioRecording) {
-        downloadAudio(this.latestAudioRecording, filename);
-      }
-    }, 200);
-
-    return downloadVideo(this.latestRecording, filename);
   }
 }
