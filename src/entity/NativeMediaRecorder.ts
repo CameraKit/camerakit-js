@@ -23,14 +23,6 @@ export class NativeMediaRecorder {
 
   private createRecorder() {
     this.mediaRecorder = null;
-    const mediaSource = new MediaSource();
-    mediaSource.addEventListener(
-      "sourceopen",
-      () => {
-        mediaSource.addSourceBuffer("video/webm");
-      },
-      false
-    );
 
     try {
       this.mediaRecorder = new MediaRecorder(this.stream, {

@@ -33,14 +33,14 @@ app.get("/ogv/*", (req, res) => {
   res.status(404).end();
 });
 
-// Host `webm-wasm` wasm/worker files
-app.get("/webm/*", (req, res) => {
-  const fileRegex = /^\/webm\/([a-zA-Z0-9\-]+\.(wasm|js|(js\.map)))$/;
+// Host `webm-media-recorder` wasm/worker files
+app.get("/webm/*.(js|wasm)", (req, res) => {
+  const fileRegex = /^\/webm\/([a-zA-Z0-9\-]+\.(wasm|js|(js\.map)|(umd\.js)))$/;
   const match = req.path.match(fileRegex);
   if (match && match[1]) {
     const filePath = path.resolve(
       __dirname,
-      "../node_modules/webm-wasm/dist/",
+      "../node_modules/webm-media-recorder/",
       match[1]
     );
 
