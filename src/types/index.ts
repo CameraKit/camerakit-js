@@ -12,6 +12,7 @@ export type CKSettings = {
 export type FallbackMediaRecorderConfig = {
   base: string;
 
+  mimeType: string;
   width: number;
   height: number;
   bitrate: number;

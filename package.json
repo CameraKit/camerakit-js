@@ -18,9 +18,9 @@
   "dependencies": {
     "@mattiasbuelens/web-streams-polyfill": "^0.2.1",
     "@types/dom-mediacapture-record": "^1.0.0",
-    "audio-recorder-polyfill": "^0.1.5",
     "ogv": "^1.6.0",
     "ts-ebml": "^2.0.2",
+    "webm-media-recorder": "^0.8.0",
     "webrtc-adapter": "^7.1.1"
   },
   "devDependencies": {

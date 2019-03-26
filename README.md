@@ -64,7 +64,7 @@ Or, alternatively, you can import via a script tag:
 <!-- You can now access `camerakit` from the global scope -->
 ```
 
-To properly support `webm` video recording and playback on Safari, you'll need to host the WebAssembly(wasm) and worker files packaged in `dist/browser/` on your webserver. The video recorder and player require these in order to function properly on Safari.
+Currently, the WebAssembly and JS worker files required for video recording on Safari can't be bundled within the JS module and must be hosted seperately on a webserver. The compiled files can be found in `dist/browser/`, ensure they're accessible via a public URL (e.g `https://myurl.com/myWorkerFile.js`). If you'd like to host the files within a subdirectory on your server, you can specify the directory path via the `base` param on the fallback player config (See [Safari support details](#safari)).
 
 Example usage:
 
@@ -107,7 +107,7 @@ async function () {
 }
 ```
 
-## Safari support details
+## Safari support details<a id="safari"></a>
 
 **Safari audio recording and video seeking are not currently supported.**
 
@@ -188,14 +188,14 @@ Used for recording video of the the `CaptureStream`.
 
 ### Instance methods
 
-| name                               | Parameters                           | Return                    | Description                                                                                                            |
-| ---------------------------------- | ------------------------------------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `recorder.start`                   | `{source?: "original" \| "preview"}` | `Promise<void>`           | Starts the recording from the specified source                                                                         |
-| `recorder.stop`                    | none                                 | `Promise<?[Blob, ?Blob]>` | Stops the recording and returns an array. First Blob is Video (and audio if available), the second is Audio on Safari. |
-| `recorder.pause`                   | none                                 | `Promise<void>`           | Pauses the recording until resumed with `recorder.start()`                                                             |
-| `recorder.getLatestRecording`      | none                                 | `?Blob`                   | Returns last recorded video file                                                                                       |
-| `recorder.downloadLatestRecording` | `filename?: string`                  | `boolean`                 | Creates file download from last video recording                                                                        |
-| `recorder.setMimeType`             | `mimeType: string`                   | `boolean`                 | Sets the video recording mime type for all sources                                                                     |
+| name                               | Parameters                           | Return           | Description                                                |
+| ---------------------------------- | ------------------------------------ | ---------------- | ---------------------------------------------------------- |
+| `recorder.start`                   | `{source?: "original" \| "preview"}` | `Promise<void>`  | Starts the recording from the specified source             |
+| `recorder.stop`                    | none                                 | `Promise<?Blob>` | Stops the recording and returns a completed video file     |
+| `recorder.pause`                   | none                                 | `Promise<void>`  | Pauses the recording until resumed with `recorder.start()` |
+| `recorder.getLatestRecording`      | none                                 | `?Blob`          | Returns last recorded video file                           |
+| `recorder.downloadLatestRecording` | `filename?: string`                  | `boolean`        | Creates file download from last video recording            |
+| `recorder.setMimeType`             | `mimeType: string`                   | `boolean`        | Sets the video recording mime type for all sources         |
 
 ### `Player`
 

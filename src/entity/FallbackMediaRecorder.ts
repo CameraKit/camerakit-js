@@ -1,55 +1,32 @@
-import {
-  ReadableStream,
-  WritableStream
-} from "@mattiasbuelens/web-streams-polyfill/ponyfill";
-import * as path from "path";
-import {
-  getVideoSpecs,
-  injectMetadata,
-  downloadVideo,
-  downloadAudio
-} from "../util";
+import { getVideoSpecs, injectMetadata } from "../util";
 import { FallbackMediaRecorderConfig } from "../types";
+import * as path from "path";
+import FediaRecorder = require("webm-media-recorder");
 
-const AudioRecorder = require("audio-recorder-polyfill");
-
-const WORKER_NAME = "webm-worker.js";
-const WASM_NAME = "webm-wasm.wasm";
+const WORKER_NAME = "encoderWorker.umd.js";
+const WASM_NAME = "WebMOpusEncoder.wasm";
 
 const DEFAULT_CONFIG: FallbackMediaRecorderConfig = {
   base: "",
-
+  mimeType: "video/webm",
   width: 640,
   height: 480,
   framerate: 30,
   bitrate: 1200
 };
 
-function nextMessage(target: MediaRecorder, what: string): Promise<Blob> {
-  return new Promise(resolve => {
-    return target.addEventListener(what, (e: BlobEvent) => resolve(e.data), {
-      once: true
-    });
-  });
-}
-
 export class FallbackMediaRecorder {
   private config: FallbackMediaRecorderConfig;
   private stream: MediaStream;
-  private worker: Worker | null;
-  private buffers: Array<Buffer>;
+  private mediaRecorder: FediaRecorder | null;
+  private blobs: Array<Blob>;
   private latestRecording: Blob | null;
   private mimeType: string = "video/webm";
-
-  private audioRecorder: MediaRecorder | null;
-  private latestAudioRecording: Blob | null;
 
   paused: boolean;
 
   static isTypeSupported(mimeType: string): boolean {
-    const supportedTypes = ["video/webm"];
-
-    return supportedTypes.indexOf(mimeType) !== -1;
+    return FediaRecorder.isTypeSupported(mimeType);
   }
 
   constructor(
@@ -57,7 +34,8 @@ export class FallbackMediaRecorder {
     config?: Partial<FallbackMediaRecorderConfig>
   ) {
     this.stream = stream;
-    this.buffers = [];
+    this.blobs = [];
+    this.mediaRecorder = null;
 
     this.config = {
       ...DEFAULT_CONFIG,
@@ -65,107 +43,52 @@ export class FallbackMediaRecorder {
       ...config
     };
   }
-  private createReadStream(): ReadableStream {
-    const { width, height, framerate } = this.config;
-    return new ReadableStream({
-      start: controller => {
-        const canvas = document.createElement("canvas");
-        const video = document.createElement("video");
-        video.srcObject = this.stream;
-        video.onplaying = () => {
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          const frameTimeout = 1000 / framerate;
-          setTimeout(function f() {
-            ctx!.drawImage(video, 0, 0);
-            controller.enqueue(ctx!.getImageData(0, 0, width, height));
-            setTimeout(f, frameTimeout);
-          });
-        };
-        video.play();
-      }
-    });
-  }
 
-  private createWriteStream(): WritableStream {
-    return new WritableStream({
-      write: (image: ImageData) => {
-        if (!this.worker) {
-          return;
-        }
-        this.worker.postMessage(image.data.buffer, [image.data.buffer]);
-      }
-    });
-  }
-
-  private handleWasmMessage(event: MessageEvent) {
-    const { width, height, bitrate, framerate } = this.config;
-    if (!this.worker) {
-      return;
-    }
-
-    switch (event.data) {
-      case "READY":
-        this.worker.postMessage({
-          width,
-          height,
-          bitrate,
-          timebaseDen: framerate,
-          realtime: true
-        });
-
-        this.createReadStream().pipeTo(this.createWriteStream());
-        break;
-      default:
-        if (event.data && !this.paused) {
-          this.buffers.push(event.data);
-        }
-        break;
-    }
-  }
-
-  private async createWorker(): Promise<Worker> {
-    this.worker = new Worker(path.join(this.config.base, WORKER_NAME));
-    this.worker.postMessage(path.join(this.config.base, WASM_NAME));
-    this.worker.addEventListener("message", (event: MessageEvent) =>
-      this.handleWasmMessage(event)
-    );
-
-    return this.worker;
+  private destroy() {
+    // TODO: any needed cleanup
   }
 
   private createRecorder() {
-    this.audioRecorder = null;
+    this.mediaRecorder = null;
 
     try {
-      this.audioRecorder = new AudioRecorder(this.stream, {
-        mimeType: this.mimeType
+      this.mediaRecorder = new FediaRecorder(this.stream.clone(), {
+        mimeType: this.mimeType,
+        videoBitsPerSecond: this.config.bitrate,
+        width: this.config.width,
+        height: this.config.height,
+        framerate: this.config.framerate
+      }, {
+        encoderWorkerFactory: () => new Worker(path.join(this.config.base, WORKER_NAME)),
+        WebmOpusEncoderWasmPath: path.join(this.config.base, WASM_NAME)
       });
     } catch (e) {
-      console.error("Exception while creating audioRecorder:", e);
+      console.error("Exception while creating MediaRecorder:", e);
       return;
     }
-
-    if (!this.audioRecorder) {
-      return;
+    if (this.mediaRecorder) {
+      this.mediaRecorder.addEventListener(
+        "dataavailable",
+        (event: BlobEvent) => {
+          if (event.data && event.data.size > 0) {
+            this.blobs.push(event.data);
+          }
+        }
+      );
+      this.mediaRecorder.start();
     }
-
-    console.log("Created audioRecorder", this.audioRecorder);
-    this.audioRecorder.onstop = (event: Object) => {
-      console.log("Recorder stopped: ", event);
-    };
-    this.audioRecorder.start(); // collect 10ms of data
+    console.log("MediaRecorder started", this.mediaRecorder);
   }
 
-  private destroy() {
-    if (!this.worker) {
-      return;
-    }
-
-    this.worker.postMessage(null);
-    this.worker.terminate();
-    this.worker = null;
+  private async stopAndAwait() {
+    return new Promise(resolve => {
+      if (this.mediaRecorder) {
+        this.mediaRecorder.addEventListener("stop", async (e: BlobEvent) => {
+          resolve();
+        });
+        this.mediaRecorder.stop();
+      }
+    });
   }
 
   setMimeType(mimeType: string): boolean {
@@ -175,66 +98,50 @@ export class FallbackMediaRecorder {
   }
 
   resetRecording() {
-    this.buffers = [];
+    this.blobs = [];
     this.paused = false;
     this.latestRecording = null;
-    this.latestAudioRecording = null;
   }
 
-  resume() {
-    this.paused = false;
+  async resume() {
+    if (this.mediaRecorder) {
+      this.mediaRecorder.resume();
+      this.paused = false;
+    }
+  }
+
+  async pause() {
+    if (this.mediaRecorder) {
+      this.mediaRecorder.pause();
+      this.paused = true;
+    }
   }
 
   async start() {
     if (this.paused) {
-      this.resume();
+      await this.resume();
       return;
     }
 
-    this.resetRecording();
-    await this.createWorker();
     this.createRecorder();
   }
 
-  async pause() {
-    this.paused = true;
-  }
-
-  async stop(): Promise<[Blob, Blob | null]> {
+  async stop(): Promise<Blob> {
     this.destroy();
 
-    if (this.audioRecorder) {
-      this.audioRecorder.stop();
-      this.latestAudioRecording = await nextMessage(
-        this.audioRecorder,
-        "dataavailable"
-      );
-    }
+    // Stops recorder properly and awaits `stop` event
+    await this.stopAndAwait();
 
-    let videoBlob = new Blob(this.buffers, {
-      type: this.mimeType
-    });
+    this.latestRecording = await injectMetadata(
+      new Blob(this.blobs, {
+        type: this.mimeType
+      })
+    );
 
-    this.latestRecording = await injectMetadata(videoBlob);
-
-    return [this.latestRecording, this.latestAudioRecording];
+    return this.latestRecording;
   }
 
   getLatestRecording() {
     return this.latestRecording;
-  }
-
-  downloadLatestRecording(filename?: string): boolean {
-    if (!this.latestRecording) {
-      return false;
-    }
-
-    setTimeout(() => {
-      if (this.latestAudioRecording) {
-        downloadAudio(this.latestAudioRecording, filename);
-      }
-    }, 200);
-
-    return downloadVideo(this.latestRecording, filename);
   }
 }
