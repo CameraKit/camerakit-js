@@ -52,16 +52,21 @@ export class FallbackMediaRecorder {
     this.mediaRecorder = null;
 
     try {
-      this.mediaRecorder = new FediaRecorder(this.stream.clone(), {
-        mimeType: this.mimeType,
-        videoBitsPerSecond: this.config.bitrate,
-        width: this.config.width,
-        height: this.config.height,
-        framerate: this.config.framerate
-      }, {
-        encoderWorkerFactory: () => new Worker(path.join(this.config.base, WORKER_NAME)),
-        WebmOpusEncoderWasmPath: path.join(this.config.base, WASM_NAME)
-      });
+      this.mediaRecorder = new FediaRecorder(
+        this.stream.clone(),
+        {
+          mimeType: this.mimeType,
+          videoBitsPerSecond: this.config.bitrate,
+          width: this.config.width,
+          height: this.config.height,
+          framerate: this.config.framerate
+        },
+        {
+          encoderWorkerFactory: () =>
+            new Worker(path.join(this.config.base, WORKER_NAME)),
+          WebmOpusEncoderWasmPath: path.join(this.config.base, WASM_NAME)
+        }
+      );
     } catch (e) {
       console.error("Exception while creating MediaRecorder:", e);
       return;
