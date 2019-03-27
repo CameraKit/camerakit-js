@@ -1,3 +1,5 @@
+import { CaptureSource } from "../entity";
+
 export async function closeStream(stream: MediaStream): Promise<void> {
   stream.getVideoTracks().forEach(track => track.stop());
   stream.getAudioTracks().forEach(track => track.stop());
@@ -32,4 +34,36 @@ export function getVideoSpecs(
   }
 
   return null;
+}
+
+export function toTrackConstraints(
+  input: CaptureSource | MediaTrackConstraints | "front" | "back" | undefined
+): MediaTrackConstraints {
+  if (input === undefined) {
+    return {};
+  }
+
+  if (typeof input === "string") {
+    if (!["front", "back"].includes(input)) {
+      throw new Error(`Unknown media selector: ${input}`);
+    }
+
+    return {
+      facingMode: input === "front" ? "user" : "environment"
+    };
+  }
+
+  if (input instanceof CaptureSource) {
+    return {
+      deviceId: {
+        exact: input.device.deviceId
+      }
+    };
+  }
+
+  if (input instanceof Object) {
+    return input;
+  }
+
+  return {};
 }

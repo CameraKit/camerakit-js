@@ -1,9 +1,5 @@
-import { CaptureStream } from "../entity";
-import {
-  CaptureSource,
-  StorageMethod,
-  FallbackMediaRecorderConfig
-} from "../types";
+import { CaptureStream, CaptureSource } from "../entity";
+import { StorageMethod, FallbackMediaRecorderConfig } from "../types";
 import settings from "../main/settings";
 import { requestAndCloseStream } from "../util";
 
@@ -29,10 +25,20 @@ export async function getDevices(
   devices.forEach(device => {
     switch (device.kind) {
       case "videoinput":
-        video.push({ device, label: device.label || "Unnamed video input" });
+        video.push(
+          new CaptureSource({
+            device,
+            label: device.label || "Unnamed video input"
+          })
+        );
         break;
       case "audioinput":
-        audio.push({ device, label: device.label || "Unnamed audio input" });
+        audio.push(
+          new CaptureSource({
+            device,
+            label: device.label || "Unnamed audio input"
+          })
+        );
         break;
       default:
         console.log("Other input type detected:", device.kind);
@@ -44,6 +50,9 @@ export async function getDevices(
 
 /**
  * Creates capture stream via chosen CaptureSource's
+ * @param {Object} [opts]
+ * @param {CaptureSource | "front" | "back"} [opts.video] - Video source to create CaptureStream from
+ * @param {CaptureSource} [opts.video] - Audio source to create CaptureStream from
  * @returns {Promise<CaptureStream>} Freshly created CaptureStream from sources
  */
 export async function createCaptureStream({
@@ -51,7 +60,7 @@ export async function createCaptureStream({
   audio,
   fallbackConfig
 }: {
-  video?: CaptureSource;
+  video?: CaptureSource | "front" | "back";
   audio?: CaptureSource;
   fallbackConfig?: Partial<FallbackMediaRecorderConfig>;
 }) {
