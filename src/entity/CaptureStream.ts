@@ -2,7 +2,7 @@ import { Shutter } from "./Shutter";
 import { Recorder } from "./Recorder";
 import { CaptureSource } from "./CaptureSource";
 import { FallbackMediaRecorderConfig } from "../types";
-import { toTrackConstraints } from "../util";
+import { toTrackConstraints, createVideoElement } from "../util";
 
 export class CaptureStream {
   private mediaStream: MediaStream;
@@ -103,15 +103,8 @@ export class CaptureStream {
    * @returns {Promise<Shutter>} Newly created shutter instance
    */
   private async initalizeShutter(): Promise<Shutter> {
-    const original = document.createElement("video");
-    const preview = document.createElement("video");
-
-    original.srcObject = this.mediaStream;
-    original.play();
-    original.muted = true;
-    preview.srcObject = this.previewStream;
-    preview.play();
-    preview.muted = true;
+    const original = createVideoElement(this.mediaStream);
+    const preview = createVideoElement(this.previewStream);
 
     this.shutter = new Shutter({ original, preview });
     return this.shutter;

@@ -36,6 +36,16 @@ export function getVideoSpecs(
   return null;
 }
 
+export function createVideoElement(stream: MediaStream): HTMLVideoElement {
+  const video = document.createElement("video");
+  video.srcObject = stream;
+  video.muted = true;
+  // @ts-ignore: playsInline is a Apple webkit only option
+  video.playsInline = true;
+  video.play();
+  return video;
+}
+
 export function toTrackConstraints(
   input: CaptureSource | MediaTrackConstraints | "front" | "back" | undefined
 ): MediaTrackConstraints {
