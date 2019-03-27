@@ -1,13 +1,20 @@
 import { Shutter } from "./Shutter";
 import { Recorder } from "./Recorder";
-import { CaptureSource, FallbackMediaRecorderConfig } from "../types";
+import { CaptureSource } from "./CaptureSource";
+import { FallbackMediaRecorderConfig } from "../types";
+import { toTrackConstraints } from "../util";
 
 export class CaptureStream {
   private mediaStream: MediaStream;
   private previewStream: MediaStream;
 
-  private videoSource: CaptureSource | undefined;
-  private audioSource: CaptureSource | undefined;
+  private videoSource:
+    | CaptureSource
+    | MediaTrackConstraints
+    | "front"
+    | "back"
+    | undefined;
+  private audioSource: CaptureSource | MediaTrackConstraints | undefined;
   private previewVideoSource = this.videoSource;
   private previewAudioSource = this.audioSource;
 
@@ -19,8 +26,8 @@ export class CaptureStream {
   /**
    * CaptureStream provides access to streaming related functions
    * @param {Object} opts
-   * @param {CaptureSource} [opts.video] - Video source to create CaptureStream from
-   * @param {CaptureSource} [opts.audio] - Audio source to create CaptureStream from
+   * @param {CaptureSource | MediaTrackConstraints | "front" | "back"} [opts.video] - Video source to create CaptureStream from
+   * @param {CaptureSource | MediaTrackConstraints} [opts.audio] - Audio source to create CaptureStream from
    * @param {Partial<FallbackMediaRecorderConfig>} [opts.fallbackConfig] - Optional config for FallbackMediaRecorder
    */
   constructor({
@@ -28,8 +35,8 @@ export class CaptureStream {
     audio,
     fallbackConfig
   }: {
-    video?: CaptureSource;
-    audio?: CaptureSource;
+    video?: CaptureSource | MediaTrackConstraints | "front" | "back";
+    audio?: CaptureSource | MediaTrackConstraints;
     fallbackConfig?: Partial<FallbackMediaRecorderConfig>;
   }) {
     this.previewVideoSource = this.videoSource = video;
@@ -50,19 +57,17 @@ export class CaptureStream {
   private generateConstraints({
     source
   }: { source?: "original" | "preview" } = {}): MediaStreamConstraints {
-    const video = (source === "preview"
-      ? this.previewVideoSource
-      : this.videoSource)!.device!.deviceId;
-    const audio = (source === "preview"
-      ? this.previewAudioSource
-      : this.audioSource)!.device!.deviceId;
-    if (video === undefined && audio === undefined) {
+    const videoSource =
+      source === "preview" ? this.previewVideoSource : this.videoSource;
+    const audioSource =
+      source === "preview" ? this.previewAudioSource : this.audioSource;
+    if (videoSource && !audioSource) {
       throw new Error("No compatible media sources");
     }
 
     return {
-      video: { deviceId: video ? { exact: video } : undefined },
-      audio: { deviceId: audio ? { exact: audio } : undefined }
+      video: toTrackConstraints(videoSource),
+      audio: toTrackConstraints(audioSource)
     };
   }
 
@@ -181,8 +186,8 @@ export class CaptureStream {
   /**
    * Re-sets the audio/video source for the specified stream
    * @param {Object} [opts={}]
-   * @param {CaptureSource} [opts.video] - New video source
-   * @param {CaptureSource} [opts.audio] - New audio source
+   * @param {CaptureSource | MediaTrackConstraints | "front" | "back"} [opts.video] - New video source
+   * @param {CaptureSource | MediaTrackConstraints} [opts.audio] - New audio source
    * @param {("original" | "preview")} [opts.source=original] - Which stream the to set the new sources
    * @returns {Promise<MediaStream>} The new stream with updated source
    */
