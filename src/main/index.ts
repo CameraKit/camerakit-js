@@ -5,12 +5,23 @@ import {
   FallbackMediaRecorderConfig
 } from "../types";
 import settings from "../main/settings";
+import { requestAndCloseStream } from "../util";
 
 /**
  * Returns media devices available to browser
+ * @param {Object} [opts]
+ * @param {boolean} [opts.noRequest] - Return devices without requesting audio/video permissions
  * @returns {Promise<{audio: Array<CaptureSource>, video: Array<CaptureSource>}>} Available audio and video sources
  */
-export async function getDevices() {
+export async function getDevices(
+  opts: {
+    noRequest?: boolean;
+  } = {}
+) {
+  if (!opts.noRequest) {
+    await requestAndCloseStream();
+  }
+
   const video: Array<CaptureSource> = [];
   const audio: Array<CaptureSource> = [];
 

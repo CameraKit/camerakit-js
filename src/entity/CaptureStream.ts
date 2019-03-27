@@ -56,7 +56,7 @@ export class CaptureStream {
     const audio = (source === "preview"
       ? this.previewAudioSource
       : this.audioSource)!.device!.deviceId;
-    if (!video && !audio) {
+    if (video === undefined && audio === undefined) {
       throw new Error("No compatible media sources");
     }
 

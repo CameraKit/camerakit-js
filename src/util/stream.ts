@@ -1,3 +1,21 @@
+export async function closeStream(stream: MediaStream): Promise<void> {
+  stream.getVideoTracks().forEach(track => track.stop());
+  stream.getAudioTracks().forEach(track => track.stop());
+}
+
+// Used if we want viewing permissions, but don't need to use it yet
+export async function requestAndCloseStream(
+  opts: MediaStreamConstraints = {
+    video: true,
+    audio: true
+  }
+): Promise<MediaStream> {
+  const stream = await navigator.mediaDevices.getUserMedia(opts);
+  await closeStream(stream);
+
+  return stream;
+}
+
 export function getVideoSpecs(
   stream: MediaStream
 ): { width: number; height: number; framerate: number } | null {
