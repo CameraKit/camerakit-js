@@ -64,8 +64,6 @@ Or, alternatively, you can import via a script tag:
 <!-- You can now access `camerakit` from the global scope -->
 ```
 
-To properly support `webm` video recording and playback on Safari, you'll need to host the WebAssembly(wasm) and worker files packaged in `dist/browser/` on your webserver. The video recorder and player require these in order to function properly on Safari.
-
 Example usage:
 
 ```js
@@ -107,9 +105,7 @@ async function () {
 }
 ```
 
-## Safari support details
-
-**Safari audio recording and video seeking are not currently supported.**
+Currently, the WebAssembly and JS worker files required for video recording on Safari can't be bundled within the JS module and must be hosted seperately on a webserver. The compiled files can be found in `dist/browser/`, ensure they're accessible via a public URL (e.g `https://myurl.com/myWorkerFile.js`).
 
 If you'd like to host the wasm/worker files in a subdirectory, you'll need to update the `base` param on `camerakit.Loader` and as well as to `fallbackConfig` when calling `createCaptureStream`:
 
@@ -137,12 +133,12 @@ async function () {
 
 #### Methods
 
-| Name                            | Parameters                                                                             | Return                                                            | Description                                                     |
-| ------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
-| `camerakit.getDevices`          | none                                                                                   | `Promise<{audio: Array<MediaSource>, video: Array<MediaSource>}>` | Returns available media devices for streaming                   |
-| `camerakit.createCaptureStream` | `{audio?: MediaSource, video?: MediaSource, fallbackConfig?: Partial<FallbackConfig>}` | `Promise<CaptureStream>`                                          | Creates new `CaptureStream` instance with provided media inputs |
-| `camerakit.enableStorage`       | `{method?: "localStorage" \| "sessionStorage" \| null}`                                | `void`                                                            | Enables photo storage as a default                              |
-| `camerakit.disableStorage`      | none                                                                                   | `void`                                                            | Disables photo storage as a default                             |
+| Name                            | Parameters                                                                                                                                                  | Return                                                                | Description                                                     |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `camerakit.getDevices`          | none                                                                                                                                                        | `Promise<{audio: Array<CaptureSource>, video: Array<CaptureSource>}>` | Returns available media devices for streaming                   |
+| `camerakit.createCaptureStream` | `{audio?: CaptureSource | MediaTrackConstraints, video?: CaptureSource | MediaTrackConstraints | "front" "back", fallbackConfig?: Partial<FallbackConfig>}` | `Promise<CaptureStream>`                                              | Creates new `CaptureStream` instance with provided media inputs |
+| `camerakit.enableStorage`       | `{method?: "localStorage" \| "sessionStorage" \| null}`                                                                                                     | `void`                                                                | Enables photo storage as a default                              |
+| `camerakit.disableStorage`      | none                                                                                                                                                        | `void`                                                                | Disables photo storage as a default                             |
 
 #### Properties
 
@@ -159,7 +155,7 @@ async function () {
 | ----------------------- | -------------------------------------------------------------------------------------- | ---------------------- | -------------------------------------------------------- |
 | `stream.init`           | none                                                                                   | `Promise<void>`        | Initializes stream and requests permissions from browser |
 | `stream.setResolution`  | `{width?: number, height?: number, aspect?: number, source?: "original" \| "preview"}` | `Promise<void>`        | Sets the video resolution of the specified source        |
-| `stream.setSource`      | `{audio?: MediaSource, video?: MediaSource, source?: "original" \| "preview"}`         | `Promise<void>`        | Overrides original media inputs for specified source     |
+| `stream.setSource`      | `{audio?: CaptureSource, video?: CaptureSource, source?: "original" \| "preview"}`     | `Promise<void>`        | Overrides original media inputs for specified source     |
 | `stream.getMediaStream` | `{source?: "original" \| "preview"}`                                                   | `Promise<MediaStream>` | Returns raw `MediaStream` for use in video display       |
 | `stream.destroy`        | none                                                                                   | `void`                 | Closes all open streams and cancels capture              |
 

@@ -7,7 +7,9 @@ import {
   getVideoSpecs,
   injectMetadata,
   downloadVideo,
-  downloadAudio
+  downloadAudio,
+  closeStream,
+  createVideoElement
 } from "../util";
 import { FallbackMediaRecorderConfig } from "../types";
 
@@ -56,7 +58,7 @@ export class FallbackMediaRecorder {
     stream: MediaStream,
     config?: Partial<FallbackMediaRecorderConfig>
   ) {
-    this.stream = stream;
+    this.stream = stream.clone();
     this.buffers = [];
 
     this.config = {
@@ -70,8 +72,7 @@ export class FallbackMediaRecorder {
     return new ReadableStream({
       start: controller => {
         const canvas = document.createElement("canvas");
-        const video = document.createElement("video");
-        video.srcObject = this.stream;
+        const video = createVideoElement(this.stream, { noPlay: true });
         video.onplaying = () => {
           canvas.width = width;
           canvas.height = height;
@@ -158,9 +159,13 @@ export class FallbackMediaRecorder {
     this.audioRecorder.start(); // collect 10ms of data
   }
 
-  private destroy() {
+  private async destroy() {
     if (!this.worker) {
       return;
+    }
+
+    if (this.stream) {
+      await closeStream(this.stream);
     }
 
     this.worker.postMessage(null);
@@ -201,7 +206,7 @@ export class FallbackMediaRecorder {
   }
 
   async stop(): Promise<[Blob, Blob | null]> {
-    this.destroy();
+    await this.destroy();
 
     if (this.audioRecorder) {
       this.audioRecorder.stop();
