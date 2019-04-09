@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as CameraKitWeb from "../../src";
-import { CaptureSource } from "../../src/types";
-import { CaptureStream } from "../../src";
+import { CaptureStream, CaptureSource } from "../../src";
 
 type Props = {};
 

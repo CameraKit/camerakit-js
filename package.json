@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "camerakit-web",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "CameraKit for web and javascript projects.",
   "main": "./dist/compiled/index.js",
   "types": "./dist/compiled/index.d.ts",
@@ -16,11 +16,10 @@
   "author": "Alterac, Inc.",
   "license": "MIT",
   "dependencies": {
-    "@mattiasbuelens/web-streams-polyfill": "^0.2.1",
     "@types/dom-mediacapture-record": "^1.0.0",
     "ogv": "^1.6.0",
     "ts-ebml": "^2.0.2",
-    "webm-media-recorder": "^0.8.0",
+    "webm-media-recorder": "^0.8.1",
     "webrtc-adapter": "^7.1.1"
   },
   "devDependencies": {

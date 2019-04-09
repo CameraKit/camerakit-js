@@ -1,4 +1,4 @@
-import { getVideoSpecs, injectMetadata } from "../util";
+import { getVideoSpecs, injectMetadata, closeStream } from "../util";
 import { FallbackMediaRecorderConfig } from "../types";
 import * as path from "path";
 import FediaRecorder = require("webm-media-recorder");
@@ -33,7 +33,8 @@ export class FallbackMediaRecorder {
     stream: MediaStream,
     config?: Partial<FallbackMediaRecorderConfig>
   ) {
-    this.stream = stream;
+    // Stream must be cloned, otherwise there are audio recording issues
+    this.stream = stream.clone();
     this.blobs = [];
     this.mediaRecorder = null;
 
@@ -44,24 +45,32 @@ export class FallbackMediaRecorder {
     };
   }
 
-  private destroy() {
-    // TODO: any needed cleanup
+  private async destroy() {
+    if (this.stream) {
+      // Fallback recorder is responsible for closing the cloned stream
+      await closeStream(this.stream);
+    }
   }
 
   private createRecorder() {
     this.mediaRecorder = null;
 
     try {
-      this.mediaRecorder = new FediaRecorder(this.stream.clone(), {
-        mimeType: this.mimeType,
-        videoBitsPerSecond: this.config.bitrate,
-        width: this.config.width,
-        height: this.config.height,
-        framerate: this.config.framerate
-      }, {
-        encoderWorkerFactory: () => new Worker(path.join(this.config.base, WORKER_NAME)),
-        WebmOpusEncoderWasmPath: path.join(this.config.base, WASM_NAME)
-      });
+      this.mediaRecorder = new FediaRecorder(
+        this.stream.clone(),
+        {
+          mimeType: this.mimeType,
+          videoBitsPerSecond: this.config.bitrate,
+          width: this.config.width,
+          height: this.config.height,
+          framerate: this.config.framerate
+        },
+        {
+          encoderWorkerFactory: () =>
+            new Worker(path.join(this.config.base, WORKER_NAME)),
+          WebmOpusEncoderWasmPath: path.join(this.config.base, WASM_NAME)
+        }
+      );
     } catch (e) {
       console.error("Exception while creating MediaRecorder:", e);
       return;
@@ -83,7 +92,7 @@ export class FallbackMediaRecorder {
   private async stopAndAwait() {
     return new Promise(resolve => {
       if (this.mediaRecorder) {
-        this.mediaRecorder.addEventListener("stop", async (e: BlobEvent) => {
+        this.mediaRecorder.addEventListener("stop", async () => {
           resolve();
         });
         this.mediaRecorder.stop();
