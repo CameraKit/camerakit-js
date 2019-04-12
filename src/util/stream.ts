@@ -1,4 +1,5 @@
 import { CaptureSource } from "../entity";
+import { triggerEvent, registerEvent } from "../main/events";
 
 export async function closeStream(stream: MediaStream): Promise<void> {
   stream.getVideoTracks().forEach(track => track.stop());
@@ -36,6 +37,13 @@ export function getVideoSpecs(
   return null;
 }
 
+export function registerVideoElement(video: HTMLVideoElement) {
+  registerEvent("video", () => {
+    video.pause();
+    video.play();
+  });
+}
+
 export function createVideoElement(
   stream: MediaStream,
   { noPlay }: { noPlay?: boolean } = {}
@@ -48,6 +56,10 @@ export function createVideoElement(
   if (!noPlay) {
     video.play();
   }
+
+  triggerEvent("video");
+  registerVideoElement(video);
+
   return video;
 }
 
