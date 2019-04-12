@@ -82,13 +82,6 @@ export function registerVideo(video?: HTMLVideoElement) {
     return;
   }
 
-  if (video.paused) {
-    // The video won't affect other videos if it's paused
-    video.addEventListener("playing", () => triggerEvent("video"), { once: true }));
-  } else {
-    triggerEvent("video");
-  }
-
   // Register this video for restarting incase we do it internally
   registerVideoElement(video);
 }

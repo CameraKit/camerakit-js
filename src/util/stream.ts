@@ -38,6 +38,13 @@ export function getVideoSpecs(
 }
 
 export function registerVideoElement(video: HTMLVideoElement) {
+  if (video.paused) {
+    // The video won't affect other videos if it's paused
+    video.addEventListener("playing", () => triggerEvent("video"), { once: true }));
+  } else {
+    triggerEvent("video");
+  }
+
   registerEvent("video", () => {
     video.pause();
     video.play();
@@ -52,7 +59,6 @@ export function createVideoElement(stream: MediaStream): HTMLVideoElement {
   video.playsInline = true;
   video.play();
 
-  triggerEvent("video");
   registerVideoElement(video);
 
   return video;
