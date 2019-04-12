@@ -20,7 +20,7 @@ class Example extends React.Component {
 
   audioSource: HTMLSelectElement | null;
   videoSource: HTMLSelectElement | null;
-  src: HTMLVideoElement | null;
+  preview: HTMLDivElement | null;
   out: HTMLVideoElement | null;
   imageContainer: HTMLImageElement | null;
 
@@ -55,11 +55,12 @@ class Example extends React.Component {
   };
 
   gotStream = (stream: CaptureStream) => {
-    if (!this.src) return;
+    if (!this.preview) return;
+    const preview = stream.getPreview();
+    preview.style.width = 200;
+
+    this.preview.appendChild(preview);
     this.setState({ stream });
-    this.src.srcObject = stream.getMediaStream();
-    this.src.play();
-    this.src.muted = true;
   };
 
   requestCamera = () => {
@@ -183,12 +184,9 @@ class Example extends React.Component {
           Request Stream
         </button>
         <br />
-        <video
-          playsInline
-          autoPlay
-          width="200"
+        <div
           ref={video => {
-            this.src = video;
+            this.preview = video;
           }}
         />
         <br />

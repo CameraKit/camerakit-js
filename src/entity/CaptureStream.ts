@@ -134,6 +134,27 @@ export class CaptureStream {
   }
 
   /**
+   * Retrieves preview with appropriate attributes used for display
+   * @param {Object} [opts={}]
+   * @param {("original" | "preview")} [opts.source=original] - Which stream which to recieve a preview for
+   * @returns {HTMLVideoElement} A video element watching the MediaStream
+   */
+  getPreview({
+    source
+  }: {
+    source?: "original" | "preview";
+  } = {}): HTMLVideoElement {
+    const stream = this.selectMediaStream({ source }).clone();
+
+    const audioTracks = stream.getAudioTracks();
+    for (let track of audioTracks) {
+      stream.removeTrack(track);
+    }
+
+    return createVideoElement(stream);
+  }
+
+  /**
    * Sets the resolution of the specified media stream
    * @param {Object} [opts={}]
    * @param {number} [opts.width] - Video width
