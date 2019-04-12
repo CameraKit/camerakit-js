@@ -76,13 +76,21 @@ export async function createCaptureStream({
  * @param {HTMLVideoElement} [video] - Video source to be registered
  */
 export function registerVideo(video?: HTMLVideoElement) {
-  // Tell all the other video elements they need to be restarted
-  triggerEvent("video");
-
-  if (video) {
-    // Register this video for restarting incase we do it internally
-    registerVideoElement(video);
+  if (!video) {
+    // Tell all the other video elements they need to be restarted
+    triggerEvent("video");
+    return;
   }
+
+  if (video.paused) {
+    // The video won't affect other videos if it's paused
+    video.addEventListener("playing", () => triggerEvent("video"), { once: true }));
+  } else {
+    triggerEvent("video");
+  }
+
+  // Register this video for restarting incase we do it internally
+  registerVideoElement(video);
 }
 
 /**
