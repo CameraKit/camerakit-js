@@ -155,13 +155,14 @@ async function () {
 
 #### Instance methods
 
-| Name                    | Parameters                                                                             | Return                 | Description                                              |
-| ----------------------- | -------------------------------------------------------------------------------------- | ---------------------- | -------------------------------------------------------- |
-| `stream.init`           | none                                                                                   | `Promise<void>`        | Initializes stream and requests permissions from browser |
-| `stream.setResolution`  | `{width?: number, height?: number, aspect?: number, source?: "original" \| "preview"}` | `Promise<void>`        | Sets the video resolution of the specified source        |
-| `stream.setSource`      | `{audio?: MediaSource, video?: MediaSource, source?: "original" \| "preview"}`         | `Promise<void>`        | Overrides original media inputs for specified source     |
-| `stream.getMediaStream` | `{source?: "original" \| "preview"}`                                                   | `Promise<MediaStream>` | Returns raw `MediaStream` for use in video display       |
-| `stream.destroy`        | none                                                                                   | `void`                 | Closes all open streams and cancels capture              |
+| Name                    | Parameters                                                                             | Return                 | Description                                                           |
+| ----------------------- | -------------------------------------------------------------------------------------- | ---------------------- | --------------------------------------------------------------------- |
+| `stream.init`           | none                                                                                   | `Promise<void>`        | Initializes stream and requests permissions from browser              |
+| `stream.setResolution`  | `{width?: number, height?: number, aspect?: number, source?: "original" \| "preview"}` | `Promise<void>`        | Sets the video resolution of the specified source                     |
+| `stream.setSource`      | `{audio?: MediaSource, video?: MediaSource, source?: "original" \| "preview"}`         | `Promise<void>`        | Overrides original media inputs for specified source                  |
+| `stream.getPreview`     | `{source?: "original" \| "preview"}`                                                   | `HTMLVideoElement`     | Returns an video element with the appropriate internal event handlers |
+| `stream.getMediaStream` | `{source?: "original" \| "preview"}`                                                   | `Promise<MediaStream>` | Returns raw `MediaStream` for use in video display                    |
+| `stream.destroy`        | none                                                                                   | `void`                 | Closes all open streams and cancels capture                           |
 
 #### Properties
 
