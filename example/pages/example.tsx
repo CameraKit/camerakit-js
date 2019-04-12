@@ -57,7 +57,7 @@ class Example extends React.Component {
   gotStream = (stream: CaptureStream) => {
     if (!this.preview) return;
     const preview = stream.getPreview();
-    preview.style.width = 200;
+    preview.style.width = "200";
 
     this.preview.appendChild(preview);
     this.setState({ stream });
