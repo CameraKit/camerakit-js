@@ -1,4 +1,4 @@
-import { getVideoSpecs, injectMetadata, closeStream } from "../util";
+import { getVideoSpecs, injectMetadata } from "../util";
 import { FallbackMediaRecorderConfig } from "../types";
 import * as path from "path";
 import FediaRecorder = require("webm-media-recorder");
@@ -45,19 +45,12 @@ export class FallbackMediaRecorder {
     };
   }
 
-  private async destroy() {
-    if (this.stream) {
-      // Fallback recorder is responsible for closing the cloned stream
-      await closeStream(this.stream);
-    }
-  }
-
   private createRecorder() {
     this.mediaRecorder = null;
 
     try {
       this.mediaRecorder = new FediaRecorder(
-        this.stream.clone(),
+        this.stream,
         {
           mimeType: this.mimeType,
           videoBitsPerSecond: this.config.bitrate,
@@ -136,8 +129,6 @@ export class FallbackMediaRecorder {
   }
 
   async stop(): Promise<Blob> {
-    this.destroy();
-
     // Stops recorder properly and awaits `stop` event
     await this.stopAndAwait();
 
