@@ -1,4 +1,5 @@
 import { CaptureSource } from "../entity";
+import { triggerEvent, registerEvent } from "../main/events";
 
 export async function closeStream(stream: MediaStream): Promise<void> {
   stream.getVideoTracks().forEach(track => track.stop());
@@ -36,6 +37,13 @@ export function getVideoSpecs(
   return null;
 }
 
+export function registerVideoElement(video: HTMLVideoElement) {
+  registerEvent("video", () => {
+    video.pause();
+    video.play();
+  });
+}
+
 export function createVideoElement(stream: MediaStream): HTMLVideoElement {
   const video = document.createElement("video");
   video.srcObject = stream;
@@ -43,6 +51,10 @@ export function createVideoElement(stream: MediaStream): HTMLVideoElement {
   // @ts-ignore: playsInline is a Apple webkit only option
   video.playsInline = true;
   video.play();
+
+  triggerEvent("video");
+  registerVideoElement(video);
+
   return video;
 }
 
