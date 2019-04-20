@@ -73,17 +73,21 @@ export class FallbackMediaRecorder {
       start: controller => {
         const canvas = document.createElement("canvas");
         const video = createVideoElement(this.stream, { noPlay: true });
-        video.onplaying = () => {
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          const frameTimeout = 1000 / framerate;
-          setTimeout(function f() {
-            ctx!.drawImage(video, 0, 0);
-            controller.enqueue(ctx!.getImageData(0, 0, width, height));
-            setTimeout(f, frameTimeout);
-          });
-        };
+        video.addEventListener(
+          "playing",
+          () => {
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            const frameTimeout = 1000 / framerate;
+            setTimeout(function f() {
+              ctx!.drawImage(video, 0, 0);
+              controller.enqueue(ctx!.getImageData(0, 0, width, height));
+              setTimeout(f, frameTimeout);
+            });
+          },
+          { once: true }
+        );
         video.play();
       }
     });
