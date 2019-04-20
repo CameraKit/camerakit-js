@@ -1,3 +1,4 @@
+import { triggerEvent } from "../main/events";
 import { getVideoSpecs, injectMetadata } from "../util";
 import { FallbackMediaRecorderConfig } from "../types";
 import * as path from "path";
@@ -69,6 +70,10 @@ export class FallbackMediaRecorder {
       return;
     }
     if (this.mediaRecorder) {
+      this.mediaRecorder.addEventListener("videoplaying", () => {
+        triggerEvent("video");
+      });
+
       this.mediaRecorder.addEventListener(
         "dataavailable",
         (event: BlobEvent) => {
