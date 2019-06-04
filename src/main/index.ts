@@ -1,7 +1,8 @@
 import { CaptureStream, CaptureSource } from "../entity";
 import { StorageMethod, FallbackMediaRecorderConfig } from "../types";
-import settings from "../main/settings";
-import { requestAndCloseStream } from "../util";
+import { requestAndCloseStream, registerVideoElement } from "../util";
+import { triggerEvent } from "./events";
+import settings from "./settings";
 
 /**
  * Returns media devices available to browser
@@ -68,6 +69,21 @@ export async function createCaptureStream({
   await captureStream.init();
 
   return captureStream;
+}
+
+/**
+ * Registers a newly created video element and tells existing ones to restart
+ * @param {HTMLVideoElement} [video] - Video source to be registered
+ */
+export function registerVideo(video?: HTMLVideoElement) {
+  if (!video) {
+    // Tell all the other video elements they need to be restarted
+    triggerEvent("video");
+    return;
+  }
+
+  // Register this video for restarting incase we do it internally
+  registerVideoElement(video);
 }
 
 /**
