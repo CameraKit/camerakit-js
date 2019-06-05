@@ -1,6 +1,7 @@
 import { triggerEvent } from "../main/events";
 import { getVideoSpecs, injectMetadata } from "../util";
 import { FallbackMediaRecorderConfig } from "../types";
+import logger from "../main/logger";
 import * as path from "path";
 import FediaRecorder = require("webm-media-recorder");
 
@@ -66,7 +67,7 @@ export class FallbackMediaRecorder {
         }
       );
     } catch (e) {
-      console.error("Exception while creating MediaRecorder:", e);
+      logger.error("Exception while creating MediaRecorder:", e);
       return;
     }
     if (this.mediaRecorder) {
@@ -84,7 +85,7 @@ export class FallbackMediaRecorder {
       );
       this.mediaRecorder.start();
     }
-    console.log("MediaRecorder started", this.mediaRecorder);
+    logger.log("MediaRecorder started", this.mediaRecorder);
   }
 
   private async stopAndAwait() {
