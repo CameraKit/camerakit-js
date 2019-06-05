@@ -2,6 +2,7 @@ import { CaptureStream, CaptureSource } from "../entity";
 import { StorageMethod, FallbackMediaRecorderConfig } from "../types";
 import { requestAndCloseStream, registerVideoElement } from "../util";
 import { triggerEvent } from "./events";
+import logger from "./logger";
 import settings from "./settings";
 
 /**
@@ -42,7 +43,7 @@ export async function getDevices(
         );
         break;
       default:
-        console.log("Other input type detected:", device.kind);
+        logger.log("Other input type detected:", device.kind);
     }
   });
 
@@ -103,4 +104,20 @@ export function enableStorage(method?: StorageMethod) {
  */
 export function disableStorage() {
   settings.storageMethod = null;
+}
+
+
+/**
+ * Enables debug features such as console logging
+ */
+export function enableDebug() {
+  settings.debug = true;
+}
+
+
+/**
+ * Disables any debug features
+ */
+export function disableDebug() {
+  settings.debug = false;
 }

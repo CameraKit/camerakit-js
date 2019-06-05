@@ -1,3 +1,5 @@
+import logger from "../main/logger";
+
 export class NativeMediaRecorder {
   private stream: MediaStream;
   private mediaRecorder: MediaRecorder | null;
@@ -29,12 +31,12 @@ export class NativeMediaRecorder {
         mimeType: this.mimeType
       });
     } catch (e) {
-      console.error("Exception while creating MediaRecorder:", e);
+      logger.error("Exception while creating MediaRecorder:", e);
       return;
     }
-    console.log("Created MediaRecorder", this.mediaRecorder);
+    logger.log("Created MediaRecorder", this.mediaRecorder);
     this.mediaRecorder.onstop = (event: Object) => {
-      console.log("Recorder stopped: ", event);
+      logger.log("Recorder stopped: ", event);
     };
     this.mediaRecorder.ondataavailable = (event: BlobEvent) => {
       if (event.data && event.data.size > 0) {
@@ -42,7 +44,7 @@ export class NativeMediaRecorder {
       }
     };
     this.mediaRecorder.start(10); // collect 10ms of data
-    console.log("MediaRecorder started", this.mediaRecorder);
+    logger.log("MediaRecorder started", this.mediaRecorder);
   }
 
   setMimeType(mimeType: string): boolean {
