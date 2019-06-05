@@ -37,6 +37,7 @@ class Example extends React.Component {
       recording: false
     };
 
+    CameraKitWeb.enableDebug();
     CameraKitWeb.Loader.base = "/ogv";
     const videoElem = new CameraKitWeb.Player();
     this.out = videoElem;

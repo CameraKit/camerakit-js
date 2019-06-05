@@ -1,6 +1,7 @@
 export type StorageMethod = "localStorage" | "sessionStorage" | null;
 
 export type CKSettings = {
+  debug: boolean;
   storageMethod: StorageMethod;
 };
 
