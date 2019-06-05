@@ -61,14 +61,19 @@ export class CaptureStream {
       source === "preview" ? this.previewVideoSource : this.videoSource;
     const audioSource =
       source === "preview" ? this.previewAudioSource : this.audioSource;
-    if (videoSource && !audioSource) {
-      throw new Error("No compatible media sources");
+
+    if (!videoSource) {
+      throw new Error("No video source specified");
     }
 
-    return {
-      video: toTrackConstraints(videoSource),
-      audio: toTrackConstraints(audioSource)
+    const constraints: MediaStreamConstraints = {
+      video: toTrackConstraints(videoSource)
     };
+    if (audioSource) {
+      constraints.audio = toTrackConstraints(audioSource);
+    }
+
+    return constraints;
   }
 
   /**
