@@ -248,10 +248,10 @@ Exposed `OGVLoader`.
 {
   base: string; // Base directory for wasm/worker files
 
-  width: number; // Video width
-  height: number; // Video height
-  bitrate: number; // Video bitrate
-  framerate: number; // Video framerate
+  width: number;
+  height: number;
+  bitrate: number;
+  framerate: number;
 }
 ```
 
