@@ -34,6 +34,17 @@ CameraKit Web as the name suggests, is our camera platform for websites. In addi
 - [CameraKit Android](https://github.com/CameraKit/camerakit-android)
 - [CameraKit iOS](https://github.com/CameraKit/camerakit-ios)
 
+## Browser support
+
+| Browser        | Preview | Pictures | Recording |
+| -------------- | ------- | -------- | --------- |
+| Desktop Chrome | ✅      | ✅       | ✅        |
+| Android Chrome | ✅      | ✅       | ✅        |
+| Firefox        | ✅      | ✅       | ✅        |
+| Edge           | ✅      | ✅       | ✅        |
+| Desktop Safari | ✅      | ✅       | ✅        |
+| Mobile Safari  | ✅      | ✅       | ✅        |
+
 ## Sponsored By
 
 <a href="https://www.expensify.com/"><img alt="Expensify" src=".repo/gh-readme-expensify-logo.svg" height="45px" width="375px" align="center"></a>
@@ -64,38 +75,38 @@ Or, alternatively, you can import via a script tag:
 <!-- You can now access `camerakit` from the global scope -->
 ```
 
-Currently, the WebAssembly and JS worker files required for video recording on Safari can't be bundled within the JS module and must be hosted seperately on a webserver. The compiled files can be found in `dist/browser/`, ensure they're accessible via a public URL (e.g `https://myurl.com/myWorkerFile.js`). If you'd like to host the files within a subdirectory on your server, you can specify the directory path via the `base` param on the fallback player config (See [Safari support details](#safari)).
+For additional Safari requirements, see [Safari support details](#safari).
 
-Example usage:
+### Example usage:
 
 ```js
 async function () {
   const devices = await camerakit.getDevices();
 
-  const myStream = await camerakit.createCaptureStream({
+  const preview = await camerakit.createCaptureStream({
     audio: devices.audio[0],
     video: devices.video[0]
   });
 
-  myStream.setResolution({width: 1920, height: 1080});
-  const myPicture = myStream.shutter.capture();
+  preview.setResolution({width: 1920, height: 1080});
+  const myPicture = preview.shutter.capture();
 
-  myStream.recorder.start();
+  preview.recorder.start();
 
   // Wait...
 
   // Pause the recording & resume
-  await myRecorder.pause();
-  await myRecorder.start();
+  await preview.recorder.pause();
+  await preview.recorder.start();
 
   // Wait some more...
 
-  const recordedVideo = await myRecorder.stop(); // Use the video yourself
+  const recordedVideo = await preview.recorder.stop(); // Use the video yourself
 
-  myRecorder.downloadLatestRecording(); // Download the video direct from browser
+  preview.recorder.downloadLatestRecording(); // Download the video direct from browser
 
   // Stop using camera
-  myStream.destroy();
+  preview.destroy();
 
   // Play video via camerakit player
   const player = new camerakit.Player();
@@ -109,9 +120,9 @@ async function () {
 
 ## Safari support details<a id="safari"></a>
 
-**Safari audio recording and video seeking are not currently supported.**
+Currently, the WebAssembly and JS worker files used for video recording and playback on Safari must be hosted seperately on a webserver. The compiled files can be found in `dist/browser/`, ensure they're accessible via a public URL (e.g `https://myurl.com/myWorkerFile.js`).
 
-If you'd like to host the wasm/worker files in a subdirectory, you'll need to update the `base` param on `camerakit.Loader` and as well as to `fallbackConfig` when calling `createCaptureStream`:
+If you'd like to host the wasm/worker files in a custom path, you'll need to update the `base` param on `camerakit.Loader` and as well as to `fallbackConfig` when calling `createCaptureStream`:
 
 ```js
 import camerakit from "camerakit-web";
@@ -143,6 +154,8 @@ async function () {
 | `camerakit.createCaptureStream` | `{audio?: MediaSource, video?: MediaSource, fallbackConfig?: Partial<FallbackConfig>}` | `Promise<CaptureStream>`                                          | Creates new `CaptureStream` instance with provided media inputs |
 | `camerakit.enableStorage`       | `{method?: "localStorage" \| "sessionStorage" \| null}`                                | `void`                                                            | Enables photo storage as a default                              |
 | `camerakit.disableStorage`      | none                                                                                   | `void`                                                            | Disables photo storage as a default                             |
+| `camerakit.enableDebug`         | none                                                                                   | `void`                                                            | Enables debug mode for logging output                           |
+| `camerakit.disableDebug`        | none                                                                                   | `void`                                                            | Disables debug mode                                             |
 
 #### Properties
 
@@ -177,11 +190,11 @@ Used for taking photos of the `CaptureStream`.
 
 ### Instance methods
 
-| name                            | Parameters                                                                            | Return    | Description                                           |
-| ------------------------------- | ------------------------------------------------------------------------------------- | --------- | ----------------------------------------------------- |
-| `shutter.capture`               | `{source?: "original" \| "preview", save?: "localStorage" | "sessionStorage" | null}` | `string`  | Takes and returns picture from specified source       |
-| `shutter.captureAndDownload`    | `{source?: "original" \| "preview", filename?: string}`                               | `boolean` | Calls `capture` and creates file download from result |
-| `shutter.downloadLatestCapture` | `filename?: string`                                                                   | `boolean` | Downloads the last picture taken                      |
+| name                            | Parameters                                                                              | Return    | Description                                           |
+| ------------------------------- | --------------------------------------------------------------------------------------- | --------- | ----------------------------------------------------- |
+| `shutter.capture`               | `{source?: "original" \| "preview", save?: "localStorage" \| "sessionStorage" \| null}` | `string`  | Takes and returns picture from specified source       |
+| `shutter.captureAndDownload`    | `{source?: "original" \| "preview", filename?: string}`                                 | `boolean` | Calls `capture` and creates file download from result |
+| `shutter.downloadLatestCapture` | `filename?: string`                                                                     | `boolean` | Downloads the last picture taken                      |
 
 ### `Recorder`
 
@@ -207,7 +220,7 @@ Example:
 ```js
 const player = new camerakit.Player();
 
-player.src = window.URL.createObjectURL(...);
+player.src = window.URL.createObjectURL(/* Your video Blob */);
 
 player.play();
 player.pause();
