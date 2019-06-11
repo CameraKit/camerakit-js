@@ -54,18 +54,18 @@ CameraKit Web as the name suggests, is our camera platform for websites. In addi
 
 ## Setup
 
-Install the `camerakit-web` package.
+Install the `camerakit` package.
 
 ```
-$ npm install camerakit-web
+$ npm install camerakit
 ```
 
 ## Usage
 
-Import and use `camerakit-web` in your project.
+Import and use `camerakit` in your project.
 
 ```js
-import camerakit from "camerakit-web";
+import camerakit from "camerakit";
 ```
 
 Or, alternatively, you can import via a script tag:
@@ -125,7 +125,7 @@ Currently, the WebAssembly and JS worker files used for video recording and play
 If you'd like to host the wasm/worker files in a custom path, you'll need to update the `base` param on `camerakit.Loader` and as well as to `fallbackConfig` when calling `createCaptureStream`:
 
 ```js
-import camerakit from "camerakit-web";
+import camerakit from "camerakit";
 
 async function () {
   // Point fallback video player to correct directory
