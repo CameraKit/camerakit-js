@@ -1,3 +1,4 @@
+import logger from "../main/logger";
 import { StorageMethod } from "../types";
 
 const CK_IMAGE_KEY = "camerakit-images";
@@ -26,7 +27,7 @@ export function getImages({
   let existing = foundValue ? JSON.parse(foundValue) : [];
 
   if (!(existing instanceof Array)) {
-    console.log("Error: Invalid value found in Storage.");
+    logger.log("Error: Invalid value found in Storage.");
     existing = [];
   }
 
