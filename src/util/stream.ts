@@ -1,3 +1,24 @@
+import { CaptureSource } from "../entity";
+import { triggerEvent, registerEvent } from "../main/events";
+
+export async function closeStream(stream: MediaStream): Promise<void> {
+  stream.getVideoTracks().forEach(track => track.stop());
+  stream.getAudioTracks().forEach(track => track.stop());
+}
+
+// Used if we want viewing permissions, but don't need to use it yet
+export async function requestAndCloseStream(
+  opts: MediaStreamConstraints = {
+    video: true,
+    audio: true
+  }
+): Promise<MediaStream> {
+  const stream = await navigator.mediaDevices.getUserMedia(opts);
+  await closeStream(stream);
+
+  return stream;
+}
+
 export function getVideoSpecs(
   stream: MediaStream
 ): { width: number; height: number; framerate: number } | null {
@@ -14,4 +35,63 @@ export function getVideoSpecs(
   }
 
   return null;
+}
+
+export function registerVideoElement(video: HTMLVideoElement) {
+  if (video.paused) {
+    // The video won't affect other videos if it's paused
+    video.addEventListener("playing", () => triggerEvent("video"), { once: true });
+  } else {
+    triggerEvent("video");
+  }
+
+  registerEvent("video", () => {
+    video.pause();
+    video.play();
+  });
+}
+
+export function createVideoElement(stream: MediaStream): HTMLVideoElement {
+  const video = document.createElement("video");
+  video.srcObject = stream;
+  video.muted = true;
+  // @ts-ignore: playsInline is a Apple webkit only option
+  video.playsInline = true;
+  video.play();
+
+  registerVideoElement(video);
+
+  return video;
+}
+
+export function toTrackConstraints(
+  input: CaptureSource | MediaTrackConstraints | "front" | "back" | undefined
+): MediaTrackConstraints {
+  if (input === undefined) {
+    return {};
+  }
+
+  if (typeof input === "string") {
+    if (!["front", "back"].includes(input)) {
+      throw new Error(`Unknown media selector: ${input}`);
+    }
+
+    return {
+      facingMode: input === "front" ? "user" : "environment"
+    };
+  }
+
+  if (input instanceof CaptureSource) {
+    return {
+      deviceId: {
+        exact: input.device.deviceId
+      }
+    };
+  }
+
+  if (input instanceof Object) {
+    return input;
+  }
+
+  return {};
 }

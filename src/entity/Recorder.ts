@@ -1,6 +1,7 @@
 import { NativeMediaRecorder } from "./NativeMediaRecorder";
 import { FallbackMediaRecorder } from "./FallbackMediaRecorder";
 import { FallbackMediaRecorderConfig } from "../types";
+import { downloadVideo } from "../util";
 
 export class Recorder {
   private mediaRecorder: NativeMediaRecorder | FallbackMediaRecorder;
@@ -81,7 +82,7 @@ export class Recorder {
    * Stops video recording
    * @returns {Promise<(Blob | null)>} The completed video recording stored in a Blob
    */
-  async stop(): Promise<null | [Blob, Blob | null]> {
+  async stop(): Promise<Blob | null> {
     if (this.mediaRecorder) {
       return this.mediaRecorder.stop();
     }
@@ -111,7 +112,12 @@ export class Recorder {
       return false;
     }
 
-    return this.mediaRecorder.downloadLatestRecording(filename);
+    const latestRecording = this.mediaRecorder.getLatestRecording();
+    if (!latestRecording) {
+      return false;
+    }
+
+    return downloadVideo(latestRecording, filename);
   }
 
   /**

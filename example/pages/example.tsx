@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as CameraKitWeb from "../../src";
-import { CaptureSource } from "../../src/types";
-import { CaptureStream } from "../../src";
+import { CaptureStream, CaptureSource } from "../../src";
 
 type Props = {};
 
@@ -13,7 +12,6 @@ type State = {
   stream: CaptureStream | undefined;
   video: Blob | undefined;
   videoTaken: boolean;
-  audio: Blob | null;
   recording: boolean;
 };
 
@@ -22,7 +20,7 @@ class Example extends React.Component {
 
   audioSource: HTMLSelectElement | null;
   videoSource: HTMLSelectElement | null;
-  src: HTMLVideoElement | null;
+  preview: HTMLDivElement | null;
   out: HTMLVideoElement | null;
   imageContainer: HTMLImageElement | null;
 
@@ -36,10 +34,10 @@ class Example extends React.Component {
       stream: undefined,
       video: undefined,
       videoTaken: false,
-      audio: null,
       recording: false
     };
 
+    CameraKitWeb.enableDebug();
     CameraKitWeb.Loader.base = "/ogv";
     const videoElem = new CameraKitWeb.Player();
     this.out = videoElem;
@@ -58,11 +56,12 @@ class Example extends React.Component {
   };
 
   gotStream = (stream: CaptureStream) => {
-    if (!this.src) return;
+    if (!this.preview) return;
+    const preview = stream.getPreview();
+    preview.style.width = "200";
+
+    this.preview.appendChild(preview);
     this.setState({ stream });
-    this.src.srcObject = stream.getMediaStream();
-    this.src.play();
-    this.src.muted = true;
   };
 
   requestCamera = () => {
@@ -124,21 +123,18 @@ class Example extends React.Component {
   stopRecording = async () => {
     let { stream } = this.state;
     if (!stream) return;
-    const [buffer, audioBuffer] = await stream.recorder.stop();
-    this.setState(
-      { video: buffer, audio: audioBuffer, recording: false, videoTaken: true },
-      () => {
-        const { video } = this.state;
-        if (!video || !this.out) return;
-        this.out.src = "";
-        this.out.srcObject = null;
-        this.out.src = window.URL.createObjectURL(video);
-        this.out.controls = true;
-        this.out.width = 200;
-        this.out.height = 150;
-        this.out.play();
-      }
-    );
+    const buffer = await stream.recorder.stop();
+    this.setState({ video: buffer, recording: false, videoTaken: true }, () => {
+      const { video } = this.state;
+      if (!video || !this.out) return;
+      this.out.src = "";
+      this.out.srcObject = null;
+      this.out.src = window.URL.createObjectURL(video);
+      this.out.controls = true;
+      this.out.width = 200;
+      this.out.height = 150;
+      this.out.play();
+    });
   };
 
   downloadVideo = () => {
@@ -189,12 +185,9 @@ class Example extends React.Component {
           Request Stream
         </button>
         <br />
-        <video
-          playsInline
-          autoPlay
-          width="200"
+        <div
           ref={video => {
-            this.src = video;
+            this.preview = video;
           }}
         />
         <br />

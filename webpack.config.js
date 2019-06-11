@@ -25,8 +25,8 @@ module.exports = {
           flatten: true
         }))
         .concat(
-          ["webm-wasm*", "webm-worker.js*"].map(f => ({
-            from: "./node_modules/webm-wasm/dist/" + f,
+          ["encoderWorker.umd.js", "WebMOpusEncoder.wasm"].map(f => ({
+            from: "./node_modules/webm-media-recorder/" + f,
             flatten: true
           }))
         )
