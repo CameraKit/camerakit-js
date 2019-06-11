@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "name": "camerakit",
   "version": "0.4.0",
   "description": "CameraKit for web and javascript projects.",
