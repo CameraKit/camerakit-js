@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "camerakit",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "CameraKit for web and javascript projects.",
   "main": "./dist/compiled/index.js",
   "types": "./dist/compiled/index.d.ts",
@@ -10,8 +10,7 @@
     "build": "npm run clean && tsc",
     "build:browser": "npm run build && webpack --config ./webpack.config.js",
     "example": "ts-node example/server.ts",
-    "postinstall": "npm run build",
-    "prepublish": "NODE_ENV=production npm run build && npm run build:browser"
+    "prepublishOnly": "NODE_ENV=production npm run build && npm run build:browser"
   },
   "author": "Alterac, Inc.",
   "license": "MIT",
